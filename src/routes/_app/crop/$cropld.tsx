@@ -14,7 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import ScreenHeader from "@/components/screen-header.tsx";
+import ScreenHeader from "@/components/ui/screen-header.tsx";
 import SuitabilityRing from "@/components/farm/suitability-ring.tsx";
 import { LevelBadge } from "@/components/farm/crop-card.tsx";
 import { getCrop, suitabilityLabel } from "@/lib/mock/crops.ts";

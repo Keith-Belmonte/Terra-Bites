@@ -8,8 +8,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { RoutePath } from "@/router.tsx";
-import Logo from "@/components/logo.tsx";
-import ThemeToggle from "@/components/theme-toggle.tsx";
+import Logo from "@/components/ui/logo.tsx";
+import ThemeToggle from "@/components/ui/theme-toggle.tsx";
 
 const TABS: Array<{ label: string; to: RoutePath; icon: LucideIcon }> = [
   { label: "Home", to: "/home", icon: HouseIcon },

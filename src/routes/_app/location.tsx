@@ -13,7 +13,7 @@ import {
   ShieldCheckIcon,
   SproutIcon,
 } from "lucide-react";
-import ScreenHeader from "@/components/screen-header.tsx";
+import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Spinner } from "@/components/ui/spinner.tsx";
 import { useFarm } from "@/components/providers/farm-context.ts";

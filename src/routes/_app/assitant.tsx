@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { MapPinIcon, RotateCcwIcon, SendHorizontalIcon, SproutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import Logo from "@/components/logo.tsx";
+import Logo from "@/components/ui/logo.tsx";
 import { useFarm, type ChatMessage } from "@/components/providers/farm-context.ts";
 import { SUGGESTED_PROMPTS, getMockReply } from "@/lib/mock/assistant.ts";
 import { getLocation } from "@/lib/format.ts";

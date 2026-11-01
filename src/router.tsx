@@ -7,7 +7,7 @@ import {
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { ConvexProvider } from "convex/react";
-import RouteError from "@/components/route-error.tsx";
+import RouteError from "@/components/ui/route-error.tsx";
 import { routeTree, type FileRouteTypes } from "./routeTree.gen.ts";
 
 function missingQueryFn({ queryKey }: QueryFunctionContext): never {

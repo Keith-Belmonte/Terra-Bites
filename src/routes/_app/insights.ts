@@ -11,7 +11,7 @@ import {
   SatelliteIcon,
 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
-import ScreenHeader from "@/components/screen-header.tsx";
+import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import {

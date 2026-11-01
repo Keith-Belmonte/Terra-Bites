@@ -15,7 +15,7 @@ import { getAuthAction, getIdTokenAction } from "@usehercules/auth-tanstack";
 import type { ClientUserInfo, NoUserInfo } from "@usehercules/auth-tanstack";
 import ConvexAppProvider from "@/components/providers/convex.tsx";
 import ThemeProvider from "@/components/providers/theme.tsx";
-import RouteError from "@/components/route-error.tsx";
+import RouteError from "@/components/ui/route-error.tsx";
 import { buttonVariants } from "@/components/ui/button.tsx";
 import { Toaster } from "@/components/ui/sonner.tsx";
 import { TooltipProvider } from "@/components/ui/tooltip.tsx";

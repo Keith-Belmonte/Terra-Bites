@@ -9,8 +9,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import Logo from "@/components/logo.tsx";
-import ThemeToggle from "@/components/theme-toggle.tsx";
+import Logo from "@/components/ui/logo.tsx";
+import ThemeToggle from "@/components/ui/theme-toggle.tsx";
 import { cn } from "@/lib/utils.ts";
 import { site } from "@/lib/site.ts";
 

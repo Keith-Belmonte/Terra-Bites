@@ -2,11 +2,11 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronRightIcon, MapPinIcon, RadarIcon } from "lucide-react";
 import { useFarm } from "@/components/providers/farm-context.ts";
 import { Button } from "@/components/ui/button.tsx";
-import ThemeToggle from "@/components/theme-toggle.tsx";
+import ThemeToggle from "@/components/ui/theme-toggle.tsx";
 import AlertCard from "@/components/farm/alert-card.tsx";
 import AssistantFab from "@/components/farm/assistant-fab.tsx";
 import { CropTile } from "@/components/farm/crop-card.tsx";
-import Logo from "@/components/logo.tsx";
+import Logo from "@/components/ui/logo.tsx";
 import { ALERTS, CONDITIONS, type Condition } from "@/lib/mock/conditions.ts";
 import { useRecommendations } from "@/hooks/use-recommendations.ts";
 import {

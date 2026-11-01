@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPinIcon, SearchXIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
-import ScreenHeader from "@/components/screen-header.tsx";
+import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Empty,

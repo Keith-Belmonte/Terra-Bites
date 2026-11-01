@@ -15,7 +15,7 @@ import {
   TractorIcon,
   type LucideIcon,
 } from "lucide-react";
-import ScreenHeader from "@/components/screen-header.tsx";
+import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import {
   Select,
