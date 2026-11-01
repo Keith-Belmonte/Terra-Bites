@@ -1,104 +1,136 @@
-# 🌱 TerraBites
+# TerraBites
 
-TerraBites is a modern web application designed to help users manage and explore agricultural information in one place. It provides a clean, responsive interface for viewing crops, agricultural data, and related resources.
+TerraBites is a location-aware farm intelligence dashboard for growers and agribusiness users. It helps people understand field conditions, climate signals, crop suitability, and recommended actions using a clean mobile-friendly interface.
 
-Built with **React**, **TypeScript**, and **Convex**, TerraBites combines a fast frontend with a scalable backend.
+The app combines a modern React frontend with a Convex backend and is configured for deployment on Cloudflare Workers via Wrangler.
 
-## ✨ Features
+## Overview
 
-- Responsive user interface for desktop and mobile
-- Component-based React frontend
-- TypeScript for safer, more maintainable code
-- Convex-powered backend and data management
-- Reusable UI components, including accordions, cards, dialogs, and forms
-- Organized project structure for easy development and customization
+TerraBites gives users the ability to:
 
-## 🛠️ Tech Stack
+- view local field conditions and farm health metrics
+- allow location access for region-specific crop recommendations
+- monitor rainfall, temperature, and other environmental signals
+- explore recommended crops for their area
+- receive farm alerts and actionable insights
+- review plant health and satellite-informed conditions
+- sign in and manage a personalized farm profile
 
-- **React** — Frontend user interface
-- **TypeScript** — Type-safe JavaScript
-- **Vite** — Fast development and build tooling
-- **Convex** — Backend, database, and realtime data platform
-- **Tailwind CSS** — Utility-first styling
-- **shadcn/ui** — Reusable accessible UI components
+## Features
 
-## 📁 Project Structure
+- Farm dashboard with personalized greeting and status cards
+- GPS-based or manual location selection for region-aware recommendations
+- Crop recommendation cards based on local conditions
+- Alert panels for weather and farm issues
+- Insights page for plant health and climate context
+- Profile management and user session flow
+- Responsive UI built for desktop and mobile use
+- Cloudflare Worker deployment support
+
+## Tech Stack
+
+- React 19
+- TanStack Router and TanStack Start
+- TypeScript
+- Vite
+- Convex
+- Tailwind CSS
+- Cloudflare Workers / Wrangler
+- Vitest for testing
+- ESLint + Prettier for code quality
+
+## Project Structure
 
 ```text
-src/
-├── components/       # Reusable UI components
-├── pages/            # Application pages
-├── lib/              # Helper functions and utilities
-└── main.tsx          # Application entry point
-
-convex/
-├── _generated/       # Auto-generated Convex files
-└── ...               # Backend functions and schema
+TerraBites/
+├── convex/               # Convex backend and schema
+├── public/               # Static assets
+├── src/                  # Frontend app and routes
+├── .gitignore
+├── convex.json           # Convex config
+├── package.json          # Scripts and dependencies
+├── pnpm-workspace.yaml   # pnpm workspace config
+├── tsconfig.json         # TypeScript config
+├── vite.config.ts        # Vite config
+├── vitest.config.ts      # Test config
+├── wrangler.jsonc        # Cloudflare Worker config
+└── README.md             # Project documentation
 ```
 
-## 🚀 Getting Started
+## Prerequisites
 
-### Prerequisites
+Before running the app locally, make sure you have:
 
-Make sure you have the following installed:
+- Node.js 18+ or newer
+- pnpm
+- a Convex account and project setup
+- a Cloudflare account if you want to deploy to Workers
 
-- [Node.js](https://nodejs.org/)
-- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
-- A [Convex](https://convex.dev/) account
+## Getting Started
 
-### Installation
-
-1. Clone the repository:
+1. Install dependencies:
 
 ```bash
-git clone [https://github.com/Keith-Belmonte/terrabites.git](https:/Keith-Belmonte/github.com//terrabites.git)
-cd terrabites
+pnpm install
 ```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Set up Convex:
+2. Start the Convex backend:
 
 ```bash
 npx convex dev
 ```
 
-4. Start the development server:
+3. Start the app:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-5. Open the app in your browser:
+4. Open the local app in your browser. The default development URL is usually:
 
 ```text
-http://localhost:5173
+http://localhost:3000
 ```
 
-## 📦 Build for Production
+## Environment Variables
+
+This project expects a Convex URL in the frontend environment. Create a `.env` file or configure your local environment with values similar to:
+
+```env
+VITE_CONVEX_URL=http://localhost:3000
+HERCULES_AUTH_REDIRECT_URI=http://localhost:3000/auth/callback
+```
+
+For production, set these to your deployed Convex URL and the public callback endpoint for authentication.
+
+## Available Scripts
 
 ```bash
-npm run build
+pnpm dev           # Run the local app
+pnpm build         # Build the app for production
+pnpm preview       # Preview production build locally
+pnpm test          # Run Vitest tests
+pnpm lint          # Lint the project
+pnpm typecheck     # Type-check app and Convex code
+pnpm prettier-fix  # Auto-format files with Prettier
 ```
 
-To preview the production build locally:
+## Deployment
+
+This project is configured for Cloudflare Workers via `wrangler.jsonc` and uses a `src/server.ts` entry point. To deploy:
 
 ```bash
-npm run preview
+npx wrangler deploy
 ```
 
-## 🤝 Contributing
+If you are using Convex in production, make sure the frontend `VITE_CONVEX_URL` points to the live Convex deployment.
 
-Contributions are welcome. If you would like to improve TerraBites, please fork the repository, create a new branch, make your changes, and submit a pull request.
+## Notes
 
-## 📄 License
+- The app uses sample/mock agricultural data for some features and can be extended with real sensor, satellite, and weather APIs.
+- Location-aware recommendations are based on user-selected or geolocated region data.
+- The project is structured to support a full-stack product with a user-facing dashboard and backend services.
 
-This project is available for personal and educational use. Add a license file if you plan to allow others to reuse or distribute the code.
+## License
 
-## 👤 Author
-
-**Keith Bryan Belmonte**
+This project does not currently include a license file. If needed, add an appropriate OSS license before publishing or distributing the project.
