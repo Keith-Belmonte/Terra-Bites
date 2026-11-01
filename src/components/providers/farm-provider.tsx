@@ -47,8 +47,8 @@ export default function FarmProvider({
     gpm: true,
   });
   const [profile, setProfile] = useState<FarmProfile>({
-    name: "Juan dela Cruz",
-    farmName: "Dela Cruz Family Farm",
+    name: "Keith Bryan",
+    farmName: "Talos II",
     farmSize: 2.5,
     preferredCrops: ["rice", "mung-bean", "onion"],
   });
