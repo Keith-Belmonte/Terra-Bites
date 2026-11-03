@@ -7,8 +7,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
-import { useFarm } from "@/components/providers/farm-context.ts";
-import { useRecommendations } from "@/hooks/use-recommendations.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
+import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import { CROPS } from "@/lib/mock/crops.ts";
 import { PRIORITY_KEYS, PRIORITY_META } from "@/lib/recommend.ts";
 import AdjustSheet from "./adjust-sheet.tsx";

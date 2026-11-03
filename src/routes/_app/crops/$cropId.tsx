@@ -18,7 +18,7 @@ import ScreenHeader from "@/components/ui/screen-header.tsx";
 import SuitabilityRing from "@/components/farm/suitability-ring.tsx";
 import { LevelBadge } from "@/components/farm/crop-card.tsx";
 import { getCrop, suitabilityLabel } from "@/lib/mock/crops.ts";
-import { useRecommendations } from "@/hooks/use-recommendations.ts";
+import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import { cn } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_app/crops/$cropId")({

@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { UserButton } from "@clerk/tanstack-react-start";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -29,9 +30,9 @@ import {
   type DataSourcePrefs,
   type Language,
   type NotificationPrefs,
-} from "@/components/providers/farm-context.ts";
-import { useTheme, type Theme } from "@/components/providers/theme-context.ts";
-import EditProfileDialog from "./-components/edit-profile-dialog.tsx";
+} from "@/components/providers/farm-context.tsx";
+import { useTheme, type Theme } from "@/components/providers/theme-context.tsx";
+import EditProfileDialog from "./-component/edit-profile-dialogue.tsx";
 import { CROPS } from "@/lib/mock/crops.ts";
 import { formatArea, getLocation } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
@@ -80,7 +81,11 @@ function Profile() {
 
   return (
     <>
-      <ScreenHeader title="Profile" subtitle="Your farm and app settings" />
+      <ScreenHeader
+        title="Profile"
+        subtitle="Your farm and app settings"
+        actions={<UserButton />}
+      />
       <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 pt-4 md:px-8">
         {/* Profile card */}
         <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">

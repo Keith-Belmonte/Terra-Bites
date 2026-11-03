@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { ClerkProvider } from "@clerk/tanstack-react-start";
 import type { QueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   HeadContent,
   Link,
@@ -11,69 +12,33 @@ import {
 } from "@tanstack/react-router";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { ConvexReactClient } from "convex/react";
-import { getAuthAction, getIdTokenAction } from "@usehercules/auth-tanstack";
-import type { ClientUserInfo, NoUserInfo } from "@usehercules/auth-tanstack";
+import { createServerFn } from "@tanstack/react-start";
+import { auth } from "@clerk/tanstack-react-start/server";
 import ConvexAppProvider from "@/components/providers/convex.tsx";
+import FarmProvider from "@/components/providers/farm-provider.tsx";
 import ThemeProvider from "@/components/providers/theme.tsx";
 import RouteError from "@/components/ui/route-error.tsx";
 import { buttonVariants } from "@/components/ui/button.tsx";
 import { Toaster } from "@/components/ui/sonner.tsx";
 import { TooltipProvider } from "@/components/ui/tooltip.tsx";
-import { useAuthErrorToast } from "@/hooks/use-auth-error-toast.ts";
 import { site } from "@/lib/site.ts";
 import appCss from "@/index.css?url";
 
-// The client reuses one session snapshot across navigations (`getAuthAction`
-// is a round trip) until it is a minute old or the tab was hidden.
-const CLIENT_AUTH_TTL_MS = 60_000;
-
-let clientAuth:
-  | { promise: Promise<ClientUserInfo | NoUserInfo>; fetchedAt: number }
-  | undefined;
-let clearsOnHide = false;
-
-function getClientAuth(): Promise<ClientUserInfo | NoUserInfo> {
-  if (!clearsOnHide) {
-    clearsOnHide = true;
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") clientAuth = undefined;
-    });
-  }
-  const now = Date.now();
-  if (
-    clientAuth === undefined ||
-    now - clientAuth.fetchedAt > CLIENT_AUTH_TTL_MS
-  ) {
-    const promise = getAuthAction().catch((error: unknown) => {
-      // Don't cache a rejection: let the next navigation retry.
-      if (clientAuth?.promise === promise) clientAuth = undefined;
-      throw error;
-    });
-    clientAuth = { promise, fetchedAt: now };
-  }
-  return clientAuth.promise;
-}
+const fetchClerkToken = createServerFn({ method: "GET" }).handler(async () => {
+  const { getToken } = await auth();
+  return getToken();
+});
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
 }>()({
-  // During SSR the ID token authenticates the server Convex client; only the
-  // sanitized session reaches the browser.
   beforeLoad: async (ctx) => {
     const serverHttpClient = ctx.context.convexQueryClient.serverHttpClient;
-    if (serverHttpClient) {
-      const [auth, idToken] = await Promise.all([
-        getAuthAction(),
-        getIdTokenAction(),
-      ]);
-      if (idToken) {
-        serverHttpClient.setAuth(idToken);
-      }
-      return { auth };
-    }
-    return { auth: await getClientAuth() };
+    if (!serverHttpClient) return;
+    const token = await fetchClerkToken();
+    if (token) serverHttpClient.setAuth(token);
   },
   head: () => ({
     meta: [
@@ -97,12 +62,13 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
-  const { convexClient, auth } = Route.useRouteContext();
-  useAuthErrorToast(auth.user !== null);
+  const { convexClient } = Route.useRouteContext();
   return (
-    <ConvexAppProvider client={convexClient} initialAuth={auth}>
-      <Outlet />
-    </ConvexAppProvider>
+    <FarmProvider>
+      <ConvexAppProvider client={convexClient}>
+        <Outlet />
+      </ConvexAppProvider>
+    </FarmProvider>
   );
 }
 
@@ -113,13 +79,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider>
           <TooltipProvider>
-            <Toaster />
-            {children}
+          <Toaster />
+          {children}
           </TooltipProvider>
-        </ThemeProvider>
-        <Scripts />
+          </ThemeProvider>
+          <Scripts />
+        </ClerkProvider>
       </body>
     </html>
   );

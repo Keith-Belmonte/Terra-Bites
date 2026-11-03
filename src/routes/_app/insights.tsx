@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { format, subDays } from "date-fns";
 import {
   ArrowDownRightIcon,
@@ -19,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover.tsx";
-import MetricChart from "./-components/metric-chart.tsx";
+import MetricChart from "./-component/metric-chart.tsx";
 import {
   METRICS,
   RANGE_OPTIONS,
@@ -28,7 +28,7 @@ import {
   type TimeRange,
 } from "@/lib/mock/insights.ts";
 import { cn } from "@/lib/utils.ts";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import { getLocation } from "@/lib/format.ts";
 
 export const Route = createFileRoute("/_app/insights")({

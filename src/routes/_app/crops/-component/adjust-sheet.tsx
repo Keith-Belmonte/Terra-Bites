@@ -13,8 +13,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet.tsx";
-import { useFarm } from "@/components/providers/farm-context.ts";
-import { useRecommendations } from "@/hooks/use-recommendations.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
+import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import { getLocation } from "@/lib/format.ts";
 import { CROP_FILTERS, type Level, type SoilType } from "@/lib/mock/crops.ts";
 import {

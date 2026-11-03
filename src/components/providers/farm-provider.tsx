@@ -9,7 +9,7 @@ import {
   type Language,
   type NotificationPrefs,
   type Units,
-} from "./farm-context.ts";
+} from "./farm-context.tsx";
 import { LOCATIONS } from "@/lib/mock/conditions.ts";
 import type { Priorities, SoilInfo } from "@/lib/recommend.ts";
 

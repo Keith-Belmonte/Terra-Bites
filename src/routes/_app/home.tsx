@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronRightIcon, MapPinIcon, RadarIcon } from "lucide-react";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import ThemeToggle from "@/components/ui/theme-toggle.tsx";
 import AlertCard from "@/components/farm/alert-card.tsx";
@@ -8,7 +8,7 @@ import AssistantFab from "@/components/farm/assistant-fab.tsx";
 import { CropTile } from "@/components/farm/crop-card.tsx";
 import Logo from "@/components/ui/logo.tsx";
 import { ALERTS, CONDITIONS, type Condition } from "@/lib/mock/conditions.ts";
-import { useRecommendations } from "@/hooks/use-recommendations.ts";
+import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import {
   formatCoords,
   formatRain,
@@ -16,7 +16,7 @@ import {
   getLocation,
 } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
-import type { Units } from "@/components/providers/farm-context.ts";
+import type { Units } from "@/components/providers/farm-context.tsx";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home | TerraBites" }] }),

@@ -16,7 +16,7 @@ import {
 import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Spinner } from "@/components/ui/spinner.tsx";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import { LOCATIONS } from "@/lib/mock/conditions.ts";
 import { formatCoords, getLocation } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_app/location")({
 });
 
 const MAP_IMAGE =
-  "https://hercules-cdn.com/cdn-cgi/image/w=1400,quality=80,fit=scale-down,format=auto/file_kmOxQvGJGSE6QmdDhfyaDsD2";
+  "https://images.unsplash.com/photo-1556490496-45afc7b8b8e5?auto=format&fit=crop&w=1400&q=75";
 
 function LocationScreen() {
   const { gps } = useFarm();

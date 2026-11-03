@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ScriptOnce } from "@tanstack/react-router";
-import { ThemeProviderContext, type Theme } from "./theme-context.ts";
+import { ThemeProviderContext, type Theme } from "./theme-context.tsx";
 
 type ThemeProviderProps = {
   children: React.ReactNode;

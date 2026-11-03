@@ -21,9 +21,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet.tsx";
 import { CropRow } from "@/components/farm/crop-card.tsx";
-import { useRecommendations } from "@/hooks/use-recommendations.ts";
-import BasisPanel from "./-components/basis-panel.tsx";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useRecommendations } from "@/hooks/use-recommendation.ts";
+import BasisPanel from "./-component/basic-panel.tsx";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import {
   CROPS,
   CROP_FILTERS,

@@ -16,8 +16,8 @@ import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppLocationRouteImport } from './routes/_app/location'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
+import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AppCropsIndexRouteImport } from './routes/_app/crops/index'
 import { Route as AppCropsCropIdRouteImport } from './routes/_app/crops/$cropId'
 
@@ -55,14 +55,14 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
   path: '/auth/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignUpRoute = AuthSignUpRouteImport.update({
+  id: '/auth/sign-up',
+  path: '/auth/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppCropsIndexRoute = AppCropsIndexRouteImport.update({
@@ -83,8 +83,8 @@ export interface FileRoutesByFullPath {
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
   '/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/crops/$cropId': typeof AppCropsCropIdRoute
   '/crops/': typeof AppCropsIndexRoute
 }
@@ -95,8 +95,8 @@ export interface FileRoutesByTo {
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
   '/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/crops/$cropId': typeof AppCropsCropIdRoute
   '/crops': typeof AppCropsIndexRoute
 }
@@ -109,8 +109,8 @@ export interface FileRoutesById {
   '/_app/insights': typeof AppInsightsRoute
   '/_app/location': typeof AppLocationRoute
   '/_app/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/_app/crops/$cropId': typeof AppCropsCropIdRoute
   '/_app/crops/': typeof AppCropsIndexRoute
 }
@@ -123,8 +123,8 @@ export interface FileRouteTypes {
     | '/insights'
     | '/location'
     | '/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/crops/$cropId'
     | '/crops/'
   fileRoutesByTo: FileRoutesByTo
@@ -135,8 +135,8 @@ export interface FileRouteTypes {
     | '/insights'
     | '/location'
     | '/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/crops/$cropId'
     | '/crops'
   id:
@@ -148,8 +148,8 @@ export interface FileRouteTypes {
     | '/_app/insights'
     | '/_app/location'
     | '/_app/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/_app/crops/$cropId'
     | '/_app/crops/'
   fileRoutesById: FileRoutesById
@@ -157,8 +157,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
-  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthSignInRoute: typeof AuthSignInRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,18 +212,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/sign-in': {
       id: '/auth/sign-in'
       path: '/auth/sign-in'
       fullPath: '/auth/sign-in'
       preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/auth/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/crops/': {
@@ -268,8 +268,8 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
-  AuthCallbackRoute: AuthCallbackRoute,
   AuthSignInRoute: AuthSignInRoute,
+  AuthSignUpRoute: AuthSignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

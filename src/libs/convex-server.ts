@@ -1,5 +1,5 @@
 import { ConvexHttpClient } from "convex/browser";
-import { getIdTokenAction } from "@usehercules/auth-tanstack";
+import { auth } from "@clerk/tanstack-react-start/server";
 
 function convexUrl(): string {
   const url = import.meta.env.VITE_CONVEX_URL;
@@ -17,9 +17,8 @@ export function publicConvexClient(): ConvexHttpClient {
 /** Same as {@link publicConvexClient}, authenticated with the current session's ID token when there is one; never send the token to the client. */
 export async function authenticatedConvexClient(): Promise<ConvexHttpClient> {
   const client = publicConvexClient();
-  const idToken = await getIdTokenAction();
-  if (idToken) {
-    client.setAuth(idToken);
-  }
+  const { getToken } = await auth();
+  const token = await getToken();
+  if (token) client.setAuth(token);
   return client;
 }

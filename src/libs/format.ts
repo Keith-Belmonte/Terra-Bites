@@ -1,5 +1,5 @@
 import { LOCATIONS, type FarmLocation } from "@/lib/mock/conditions.ts";
-import type { Units } from "@/components/providers/farm-context.ts";
+import type { Units } from "@/components/providers/farm-context.tsx";
 
 export function getLocation(id: string): FarmLocation {
   return LOCATIONS.find((l) => l.id === id) ?? LOCATIONS[0];

@@ -6,7 +6,7 @@ import { MapPinIcon, RotateCcwIcon, SendHorizontalIcon, SproutIcon } from "lucid
 import { Button } from "@/components/ui/button.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import Logo from "@/components/ui/logo.tsx";
-import { useFarm, type ChatMessage } from "@/components/providers/farm-context.ts";
+import { useFarm, type ChatMessage } from "@/components/providers/farm-context.tsx";
 import { SUGGESTED_PROMPTS, getMockReply } from "@/lib/mock/assistant.ts";
 import { getLocation } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";

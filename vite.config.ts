@@ -1,6 +1,24 @@
-import { defineConfig } from "@usehercules/vite-tanstack";
+import { cloudflare } from "@cloudflare/vite-plugin";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import tailwindcss from "@tailwindcss/vite";
+import viteReact from "@vitejs/plugin-react";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
 
-// The plugins, path aliases, dependency pre-bundling and dev server settings
-// all come from @usehercules/vite-tanstack. To extend them, pass options:
-//   defineConfig({ vite: { build: { sourcemap: true } }, prebundle: ["lodash/debounce"] })
-export default defineConfig();
+const root = fileURLToPath(new URL(".", import.meta.url));
+
+export default defineConfig({
+  plugins: [
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tanstackStart(),
+    viteReact(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: [
+      { find: /^@\/convex\//, replacement: `${root}convex/` },
+      { find: /^@\/lib\//, replacement: `${root}src/libs/` },
+      { find: "@", replacement: `${root}src` },
+    ],
+  },
+});

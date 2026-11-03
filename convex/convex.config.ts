@@ -3,9 +3,7 @@ import { v } from "convex/values";
 
 const app = defineApp({
   env: {
-    HERCULES_OIDC_AUTHORITY: v.string(),
-    HERCULES_OIDC_CLIENT_ID: v.string(),
-    HERCULES_API_KEY: v.string(),
+    CLERK_JWT_ISSUER_DOMAIN: v.string(),
   },
 });
 

@@ -176,7 +176,7 @@ function Welcome() {
               variant="secondary"
               size="lg"
               className="h-14 rounded-2xl text-base font-bold"
-              render={<Link to="/home" />}
+              render={<Link to="/auth/sign-in" />}
               nativeButton={false}
             >
               Sign In

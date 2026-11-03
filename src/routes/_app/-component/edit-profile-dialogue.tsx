@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import { CROPS } from "@/lib/mock/crops.ts";
 import { cn } from "@/lib/utils.ts";
 
@@ -121,7 +121,12 @@ export default function EditProfileDialog() {
                   <FormLabel>Preferred crops</FormLabel>
                   <div className="flex flex-wrap gap-2">
                     {CROPS.map((c) => {
-                      const on = field.value.includes(c.id);
+                      const selected = Array.isArray(field.value)
+                        ? field.value.filter(
+                            (value): value is string => typeof value === "string",
+                          )
+                        : [];
+                      const on = selected.includes(c.id);
                       return (
                         <button
                           key={c.id}
@@ -130,8 +135,8 @@ export default function EditProfileDialog() {
                           onClick={() =>
                             field.onChange(
                               on
-                                ? field.value.filter((v) => v !== c.id)
-                                : [...field.value, c.id],
+                                ? selected.filter((value) => value !== c.id)
+                                : [...selected, c.id],
                             )
                           }
                           className={cn(

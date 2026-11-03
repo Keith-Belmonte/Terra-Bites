@@ -61,7 +61,7 @@ TerraBites/
 
 Before running the app locally, make sure you have:
 
-- Node.js 18+ or newer
+- Node.js 20.9 or newer
 - pnpm
 - a Convex account and project setup
 - a Cloudflare account if you want to deploy to Workers
@@ -94,14 +94,18 @@ http://localhost:3000
 
 ## Environment Variables
 
-This project expects a Convex URL in the frontend environment. Create a `.env` file or configure your local environment with values similar to:
+The app uses Clerk for authentication and Convex for data. Add the following values to your local `.env` file:
 
 ```env
-VITE_CONVEX_URL=http://localhost:3000
-HERCULES_AUTH_REDIRECT_URI=http://localhost:3000/auth/callback
+VITE_CONVEX_URL=https://your-deployment.convex.cloud
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_JWT_ISSUER_DOMAIN=https://your-instance.clerk.accounts.dev
 ```
 
-For production, set these to your deployed Convex URL and the public callback endpoint for authentication.
+In Vercel, configure `VITE_CONVEX_URL`, `VITE_CLERK_PUBLISHABLE_KEY`, and `CLERK_SECRET_KEY`. Never expose `CLERK_SECRET_KEY` to client code. Configure Clerk's Convex integration and set `CLERK_JWT_ISSUER_DOMAIN` in the Convex development and production deployment environments; the value is the Frontend API URL shown in Clerk.
+
+After setting up Clerk, run `npx convex dev` to publish the Convex auth configuration for development. For production, run `npx convex deploy`.
 
 ## Available Scripts
 

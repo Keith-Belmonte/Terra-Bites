@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useFarm } from "@/components/providers/farm-context.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 import { getLocation } from "@/lib/format.ts";
 import { CROPS } from "@/lib/mock/crops.ts";
 import { rankCrops, type RecommendInputs, type ScoredCrop } from "@/lib/recommend.ts";

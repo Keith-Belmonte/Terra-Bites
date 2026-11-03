@@ -1,6 +1,17 @@
-import { defineVitestConfig } from "@usehercules/vite-tanstack/vitest";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
 
-// Two projects: "convex" (edge-runtime with convex-test) and "frontend"
-// (jsdom with Testing Library). Keep tests hermetic: no real deployments or
-// network calls.
-export default defineVitestConfig();
+const root = fileURLToPath(new URL(".", import.meta.url));
+
+export default defineConfig({
+  resolve: {
+    alias: [
+      { find: /^@\/convex\//, replacement: `${root}convex/` },
+      { find: /^@\/lib\//, replacement: `${root}src/libs/` },
+      { find: "@", replacement: `${root}src` },
+    ],
+  },
+  test: {
+    include: ["src/**/*.test.{ts,tsx}"],
+  },
+});
