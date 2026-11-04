@@ -103,7 +103,9 @@ CLERK_SECRET_KEY=sk_test_...
 CLERK_JWT_ISSUER_DOMAIN=https://your-instance.clerk.accounts.dev
 ```
 
-In Vercel, configure `VITE_CONVEX_URL`, `VITE_CLERK_PUBLISHABLE_KEY`, and `CLERK_SECRET_KEY`. Never expose `CLERK_SECRET_KEY` to client code. Configure Clerk's Convex integration and set `CLERK_JWT_ISSUER_DOMAIN` in the Convex development and production deployment environments; the value is the Frontend API URL shown in Clerk.
+For Cloudflare deployments, configure `VITE_CONVEX_URL` and `VITE_CLERK_PUBLISHABLE_KEY` as **build-time environment variables**. They are read by Vite while building; setting them only as Worker runtime variables after the build will not update the deployed client or server bundle. `VITE_CONVEX_URL` must point to the production Convex deployment.
+
+Set `CLERK_SECRET_KEY` as a Cloudflare Worker secret for server-side Clerk authentication. Never expose it to client code. Configure Clerk's Convex integration and set `CLERK_JWT_ISSUER_DOMAIN` in the Convex development and production deployment environments; the value is the Frontend API URL shown in Clerk. For Vercel, configure the same Vite variables as build environment variables and `CLERK_SECRET_KEY` as a server-side secret.
 
 After setting up Clerk, run `npx convex dev` to publish the Convex auth configuration for development. For production, run `npx convex deploy`.
 
@@ -127,7 +129,9 @@ This project is configured for Cloudflare Workers via `wrangler.jsonc` and uses 
 npx wrangler deploy
 ```
 
-If you are using Convex in production, make sure the frontend `VITE_CONVEX_URL` points to the live Convex deployment.
+Before deploying, make sure `VITE_CONVEX_URL` and `VITE_CLERK_PUBLISHABLE_KEY` are available to the production build. If deploying from a Cloudflare Git integration, add them to that project's build environment variables and trigger a new deployment. If deploying locally, make sure they are present in the environment used for the build/deploy command. Add `CLERK_SECRET_KEY` as a Worker secret in Cloudflare. Do not commit these values to the repository.
+
+The app's production router throws during server rendering when `VITE_CONVEX_URL` is missing, which appears in the browser as a generic retry page. If the page still fails after configuring the variables and redeploying, inspect the Worker logs in Cloudflare for the underlying server error.
 
 ## Notes
 
