@@ -1,67 +1,56 @@
 import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  ArrowRightIcon,
-  BotMessageSquareIcon,
-  MapPinIcon,
-  SatelliteIcon,
-  type LucideIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
-import Logo from "@/components/ui/logo.tsx";
-import ThemeToggle from "@/components/ui/theme-toggle.tsx";
-import { cn } from "@/lib/utils.ts";
-import { site } from "@/lib/site.ts";
-
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1556490496-45afc7b8b8e5?auto=format&fit=crop&w=1400&q=75";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: `${site.name} | Smarter farming with NASA data and AI` },
-      { name: "description", content: site.tagline },
-      { property: "og:title", content: `${site.name} | Smarter farming` },
-      { property: "og:description", content: site.tagline },
-    ],
-  }),
   component: Welcome,
 });
 
-type Slide = { icon: LucideIcon; title: string; body: string; stat: string };
+const HERO_IMAGE =
+  "https://unsplash.com";
 
-const SLIDES: Slide[] = [
+const SLIDES = [
   {
-    icon: SatelliteIcon,
-    title: "NASA data, made simple",
-    body: "Soil moisture, rainfall, temperature and plant health from NASA satellites, explained in plain words.",
-    stat: "5 satellite data sets",
-  },
-  {
-    icon: MapPinIcon,
-    title: "Advice for your exact field",
-    body: "Your GPS location tells us your climate and soil, so crop picks and alerts fit your farm.",
-    stat: "Updated for your location",
-  },
-  {
-    icon: BotMessageSquareIcon,
-    title: "Ask Siesta, your AI assistant",
-    body: "Ask anything, like when to plant rice or how to handle a dry spell, and get a clear answer.",
-    stat: "Answers in seconds",
+    title: "Terra Bites",
+    subtitle: "Precision Agronomy System",
+    description: "Real-time crop tracking and satellite soil analysis.",
+    icon: () => (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+      </svg>
+    ),
   },
 ];
 
+function ThemeToggle() {
+  return (
+    <button className="p-2 text-white/80 hover:text-white transition">
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.242 17.657l.707-.707M6.343 6.343l.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z" />
+      </svg>
+    </button>
+  );
+}
+
+function LogoInverse() {
+  return (
+    <div className="flex items-center gap-2 font-bold text-white text-xl tracking-tight">
+      <span className="text-emerald-400">🌾</span> TerraBites
+    </div>
+  );
+}
+
 function Welcome() {
   const [index, setIndex] = useState(0);
+  const fields = useQuery(api.user.getMyFields);
+  const primaryField = fields && fields.length > 0 ? fields[0] : null;
   const slide = SLIDES[index];
   const Icon = slide.icon;
-  const isLast = index === SLIDES.length - 1;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <div className="mx-auto grid min-h-screen max-w-6xl md:grid-cols-2 md:items-center md:gap-12 md:px-8">
-        {/* Photo hero */}
+      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-2 md:items-center md:gap-12 md:px-8">
         <div className="relative h-[46vh] min-h-80 md:h-[80vh] md:overflow-hidden md:rounded-[2rem]">
           <img
             src={HERO_IMAGE}
@@ -71,122 +60,45 @@ function Welcome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-background md:to-black/50" />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 text-white">
             <span className="rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm">
-              <Logo inverse />
+              <LogoInverse />
             </span>
             <span className="rounded-full bg-black/30 text-white backdrop-blur-sm [&_button:hover]:bg-white/15 [&_button]:text-white">
               <ThemeToggle />
             </span>
           </div>
+
           <div className="absolute bottom-8 left-6 hidden max-w-sm text-white md:block">
             <p className="text-sm font-semibold tracking-widest text-white/80 uppercase">
               Soil moisture today
             </p>
-            <p className="font-serif text-6xl font-semibold">34%</p>
+            <p className="font-serif text-6xl font-semibold">
+              {primaryField ? `${primaryField.soilMoisture}%` : "No Data"}
+            </p>
             <p className="text-white/85">
-              Good for land preparation in Nueva Ecija
+              {primaryField ? `Field: ${primaryField.name}` : "Please add a field to get started"}
             </p>
           </div>
         </div>
 
-        {/* Copy + onboarding */}
-        <div className="relative -mt-16 flex flex-col px-5 pb-8 md:mt-0 md:px-0">
-          <motion.h1
-            initial={{ y: 12 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="font-serif text-[2.6rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"
-          >
-            Smarter farming with{" "}
-            <span className="text-primary italic">NASA data</span> and AI.
-          </motion.h1>
-          <p className="pt-4 text-lg text-muted-foreground">
-            Know what to plant, when to plant it, and how to protect it, for
-            your own field.
-          </p>
-
-          <section
-            aria-label="How TerraBites helps"
-            className="mt-7 rounded-3xl border border-border bg-card p-5 shadow-sm"
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: 24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -24 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="flex gap-4"
-              >
-                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
-                  <Icon className="size-7" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold tracking-wider text-primary uppercase">
-                    {slide.stat}
-                  </p>
-                  <h2 className="pt-1 text-xl font-bold">{slide.title}</h2>
-                  <p className="pt-1 text-muted-foreground">{slide.body}</p>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-            <div className="flex items-center justify-between pt-5">
-              <div className="flex gap-2" role="tablist">
-                {SLIDES.map((s, i) => (
-                  <button
-                    key={s.title}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === index}
-                    aria-label={`Show slide ${i + 1}: ${s.title}`}
-                    onClick={() => setIndex(i)}
-                    className="flex h-8 cursor-pointer items-center"
-                  >
-                    <span
-                      className={cn(
-                        "block h-2.5 rounded-full transition-all",
-                        i === index ? "w-8 bg-primary" : "w-2.5 bg-border",
-                      )}
-                    />
-                  </button>
-                ))}
-              </div>
-              <Button
-                variant="ghost"
-                size="lg"
-                className="rounded-full font-semibold"
-                onClick={() => setIndex(isLast ? 0 : index + 1)}
-              >
-                {isLast ? "Start over" : "Next"}
-                <ArrowRightIcon />
-              </Button>
+        <div className="flex flex-col justify-center px-4 py-8 md:px-0">
+          <div className="space-y-6">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+              <Icon />
             </div>
-          </section>
-
-          <div className="flex flex-col gap-3 pt-6">
-            <Button
-              size="lg"
-              className="h-14 rounded-2xl text-base font-bold"
-              render={<Link to="/location" />}
-              nativeButton={false}
-            >
-              Get Started
-              <ArrowRightIcon className="size-5" />
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              className="h-14 rounded-2xl text-base font-bold"
-              render={<Link to="/auth/sign-in" />}
-              nativeButton={false}
-            >
-              Sign In
-            </Button>
-          </div>
-          <p className="pt-4 text-center text-xs text-muted-foreground">
-            Insights use NASA POWER, SMAP, MODIS and GPM public data.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                {slide.title}
+              </h1>
+              <p className="text-xl text-muted-foreground">{slide.subtitle}</p>
+            </div>
+            <p className="text-base leading-7 text-muted-foreground max-w-md">
+              {slide.description}
+            </p>
+                       <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-500 px-6 font-semibold text-white hover:bg-emerald-400 transition"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
