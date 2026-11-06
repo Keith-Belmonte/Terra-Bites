@@ -159,15 +159,29 @@ function DeniedFallback() {
 }
 
 function LocationDetails() {
-  const { gps, locatedAt, requestLocation, locationId, setLocationId } = useFarm();
+  const { gps, locatedAt, requestLocation, locationId, setLocationId, deviceLocation } = useFarm();
   const loc = getLocation(locationId);
   const locating = gps === "locating";
 
   const rows = [
-    { label: "Region", value: loc.region },
-    { label: "City / municipality", value: loc.city },
-    { label: "Province", value: loc.province },
-    { label: "Coordinates", value: formatCoords(loc.lat, loc.lng), mono: true },
+    {
+      label: "Region / province",
+      value: deviceLocation
+        ? deviceLocation.region ?? deviceLocation.country ?? "GPS location"
+        : loc.region,
+    },
+    {
+      label: "City / municipality",
+      value: deviceLocation ? deviceLocation.city ?? "GPS location" : loc.city,
+    },
+    { label: "Country", value: deviceLocation?.country ?? loc.country },
+    {
+      label: "Coordinates",
+      value: deviceLocation
+        ? formatCoords(deviceLocation.latitude, deviceLocation.longitude)
+        : formatCoords(loc.lat, loc.lng),
+      mono: true,
+    },
   ];
 
   return (
@@ -176,7 +190,7 @@ function LocationDetails() {
       <section className="relative h-72 overflow-hidden rounded-3xl border border-border bg-muted shadow-sm md:h-80">
         <img
           src={MAP_IMAGE}
-          alt={`Satellite view around ${loc.city}`}
+          alt={`Satellite view around ${deviceLocation?.city ?? (deviceLocation ? "your location" : loc.city)}`}
           className={cn("size-full object-cover transition-all duration-700", locating && "scale-110 blur-[2px]")}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,oklch(0_0_0/0.35))]" />
@@ -189,7 +203,7 @@ function LocationDetails() {
             className="flex flex-col items-center"
           >
             <span className="rounded-full bg-card px-3 py-1 text-xs font-bold text-card-foreground shadow-md">
-              {loc.city}
+              {deviceLocation?.city ?? (deviceLocation ? "Your location" : loc.city)}
             </span>
             <MapPinIcon className="size-12 fill-primary text-primary-foreground drop-shadow-lg" strokeWidth={1.5} />
           </motion.div>
@@ -232,6 +246,12 @@ function LocationDetails() {
           </Button>
         </div>
       </section>
+
+      {deviceLocation?.city && (
+        <p className="text-xs text-muted-foreground">
+          Place name © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">OpenStreetMap contributors</a>
+        </p>
+      )}
 
       <RegionalProfile />
 

@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useUser } from "@clerk/tanstack-react-start";
 import { ChevronRightIcon, MapPinIcon, RadarIcon } from "lucide-react";
 import { useFarm } from "@/components/providers/farm-context.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -7,7 +8,12 @@ import AlertCard from "@/components/farm/alert-card.tsx";
 import AssistantFab from "@/components/farm/assistant-fab.tsx";
 import { CropTile } from "@/components/farm/crop-card.tsx";
 import Logo from "@/components/ui/logo.tsx";
-import { ALERTS, CONDITIONS, type Condition } from "@/lib/mock/conditions.ts";
+import {
+  adaptObservationsToAlerts,
+  adaptObservationsToConditions,
+  adaptRegionalSample,
+  buildAgronomyInsight,
+} from "@/lib/agronomy-data.ts";
 import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import {
   formatCoords,
@@ -17,6 +23,7 @@ import {
 } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
 import type { Units } from "@/components/providers/farm-context.tsx";
+import type { Condition } from "@/lib/mock/conditions.ts";
 
 export const Route = createFileRoute("/_app/home")({
   head: () => ({ meta: [{ title: "Home | TerraBites" }] }),
@@ -36,11 +43,29 @@ function displayValue(c: Condition, units: Units) {
 }
 
 function Home() {
-  const { locationId, profile, units } = useFarm();
+  const { locationId, units, deviceLocation } = useFarm();
+  const { user } = useUser();
   const loc = getLocation(locationId);
-  const firstName = profile.name.split(" ")[0];
+  const firstName =
+    user?.firstName || user?.fullName?.split(" ")[0] || "farmer";
+  const locationName = deviceLocation
+    ? [deviceLocation.city, deviceLocation.region ?? deviceLocation.country]
+        .filter(Boolean)
+        .join(", ") ||
+      `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
+    : `${loc.city}, ${loc.province}`;
   const top = useRecommendations().ranked.slice(0, 4);
-  const [hero, ...rest] = CONDITIONS;
+  const observations = adaptRegionalSample(loc);
+  const conditions = adaptObservationsToConditions(observations);
+  const alerts = adaptObservationsToAlerts(observations);
+  const insight = buildAgronomyInsight(
+    observations,
+    top[0] && {
+      cropName: top[0].crop.name,
+      score: top[0].score,
+    },
+  );
+  const [hero, ...rest] = conditions;
   const heroValue = displayValue(hero, units);
 
   return (
@@ -58,15 +83,30 @@ function Home() {
           </span>
         </div>
         <div className="relative pt-6 md:pt-2">
-          <p className="text-primary-foreground/80">Magandang umaga, {firstName}</p>
+          <p className="text-primary-foreground/80">
+            Magandang umaga, {firstName}
+          </p>
           <Link
             to="/location"
             className="group mt-1 inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary-foreground/12 py-1.5 pr-3 pl-2 text-sm font-semibold"
           >
             <MapPinIcon className="size-4" />
-            {loc.city}, {loc.province}
+            {locationName}
             <ChevronRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
+          {deviceLocation?.city && (
+            <p className="pt-1 pl-1 text-[10px] text-primary-foreground/70">
+              Place name ©{" "}
+              <a
+                href="https://www.openstreetmap.org/copyright"
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                OpenStreetMap contributors
+              </a>
+            </p>
+          )}
           <p className="pt-1.5 pl-1 font-mono text-xs text-primary-foreground/70">
             {loc.region} · {formatCoords(loc.lat, loc.lng)}
           </p>
@@ -76,7 +116,7 @@ function Home() {
               <span className="text-4xl">{heroValue.unit}</span>
             </span>
             <div className="pb-1.5 text-sm">
-              <p className="font-bold">Partly sunny</p>
+              <p className="font-bold">Regional conditions</p>
               <p className="text-primary-foreground/75">{hero.detail}</p>
             </div>
           </div>
@@ -84,7 +124,10 @@ function Home() {
       </section>
 
       {/* Condition cards overlap the band */}
-      <section aria-label="Field conditions" className="relative -mt-14 px-4 md:px-12">
+      <section
+        aria-label="Field conditions"
+        className="relative -mt-14 px-4 md:px-12"
+      >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {rest.map((c) => {
             const Icon = c.icon;
@@ -99,7 +142,10 @@ function Home() {
                     <Icon className="size-5" />
                   </span>
                   <span
-                    className={cn("size-2.5 rounded-full", STATUS_DOT[c.status])}
+                    className={cn(
+                      "size-2.5 rounded-full",
+                      STATUS_DOT[c.status],
+                    )}
                     aria-label={c.status}
                   />
                 </div>
@@ -119,7 +165,7 @@ function Home() {
         </div>
         <p className="flex items-center gap-1.5 pt-3 text-xs text-muted-foreground">
           <RadarIcon className="size-3.5" />
-          Based on NASA POWER and SMAP data · sample data
+          Regional sample observations · illustrative, not live satellite data
         </p>
       </section>
 
@@ -127,7 +173,7 @@ function Home() {
       <section className="px-4 pt-8 md:px-12">
         <SectionTitle title="Alerts for your farm" />
         <div className="flex flex-col gap-3">
-          {ALERTS.map((a) => (
+          {alerts.map((a) => (
             <AlertCard key={a.id} alert={a} />
           ))}
         </div>
@@ -151,9 +197,9 @@ function Home() {
           className="flex cursor-pointer items-center gap-4 rounded-3xl border border-border bg-secondary/60 p-5 transition-colors hover:bg-secondary"
         >
           <div className="min-w-0 flex-1">
-            <p className="font-bold">Plant health around you is strong</p>
+            <p className="font-bold">{insight.title}</p>
             <p className="text-sm text-muted-foreground">
-              NDVI 0.68, above the province average. See all satellite data.
+              {insight.detail} Explore data insights.
             </p>
           </div>
           <ChevronRightIcon className="size-5 shrink-0" />
@@ -168,7 +214,9 @@ function Home() {
 function SectionTitle({ title, to }: { title: string; to?: "/crops" }) {
   return (
     <div className="flex items-center justify-between pb-3">
-      <h2 className="font-serif text-xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="font-serif text-xl font-semibold tracking-tight">
+        {title}
+      </h2>
       {to && (
         <Button
           variant="link"

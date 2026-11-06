@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useUser } from "@clerk/tanstack-react-start";
 import { motion } from "motion/react";
 import { format } from "date-fns";
 import { MapPinIcon, RotateCcwIcon, SendHorizontalIcon, SproutIcon } from "lucide-react";
@@ -24,8 +25,16 @@ function newId() {
 }
 
 function Assistant() {
-  const { messages, setMessages, locationId, profile } = useFarm();
+  const { messages, setMessages, locationId, deviceLocation } = useFarm();
+  const { user } = useUser();
   const loc = getLocation(locationId);
+  const locationName = deviceLocation?.city
+    ? [deviceLocation.city, deviceLocation.region ?? deviceLocation.country]
+        .filter(Boolean)
+        .join(", ")
+    : deviceLocation
+      ? `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
+      : loc.city;
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -61,7 +70,7 @@ function Assistant() {
     }, REPLY_DELAY_MS);
   };
 
-  const firstName = profile.name.split(" ")[0];
+  const firstName = user?.firstName || user?.fullName?.split(" ")[0] || "there";
 
   return (
     <div className="fixed inset-x-0 top-0 bottom-16 flex flex-col bg-background md:static md:-mb-10 md:h-screen">
@@ -75,7 +84,7 @@ function Assistant() {
             <h1 className="font-serif text-xl font-semibold">Siesta</h1>
             <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
               <MapPinIcon className="size-3" />
-              Using data for {loc.city}
+              Using data for {locationName}
             </p>
           </div>
           {messages.length > 0 && (

@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   FarmContext,
   type ChatMessage,
   type DataSourcePrefs,
+  type DeviceLocation,
   type FarmProfile,
   type FarmState,
   type GpsStatus,
@@ -13,8 +14,18 @@ import {
 import { LOCATIONS } from "@/lib/mock/conditions.ts";
 import type { Priorities, SoilInfo } from "@/lib/recommend.ts";
 
-// Simulated GPS lookup delay until real geolocation is connected.
-const LOCATE_DELAY_MS = 1400;
+type ReverseGeocodeResult = {
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    county?: string;
+    state?: string;
+    province?: string;
+    country?: string;
+  };
+};
 
 export default function FarmProvider({
   children,
@@ -22,6 +33,7 @@ export default function FarmProvider({
   children: React.ReactNode;
 }) {
   const [locationId, setLocationIdState] = useState(LOCATIONS[0].id);
+  const [deviceLocation, setDeviceLocation] = useState<DeviceLocation | null>(null);
   const [soilTest, setSoilTest] = useState<SoilInfo | null>(null);
   const [priorities, setPriorities] = useState<Priorities>({
     profit: 2,
@@ -53,25 +65,66 @@ export default function FarmProvider({
     preferredCrops: ["rice", "mung-bean", "onion"],
   });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // A soil test belongs to one field, so moving area falls back to the survey.
   const setLocationId = useCallback((id: string) => {
     setLocationIdState(id);
+    setDeviceLocation(null);
     setSoilTest(null);
   }, []);
 
   const requestLocation = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
+    if (!navigator.geolocation) {
+      setGps("denied");
+      return;
+    }
+
     setGps("locating");
-    timer.current = setTimeout(() => {
+    setDeviceLocation(null);
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      const { latitude, longitude } = coords;
+      setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
       setGps("granted");
       setLocatedAt(new Date().toISOString());
-    }, LOCATE_DELAY_MS);
+
+      try {
+        const params = new URLSearchParams({
+          format: "jsonv2",
+          lat: String(latitude),
+          lon: String(longitude),
+          addressdetails: "1",
+        });
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?${params}`,
+          { headers: { Accept: "application/json" } },
+        );
+        if (!response.ok) return;
+
+        const result = (await response.json()) as ReverseGeocodeResult;
+        const address = result.address;
+        const city =
+          address?.city ??
+          address?.town ??
+          address?.village ??
+          address?.municipality ??
+          address?.county ??
+          null;
+        setDeviceLocation({
+          latitude,
+          longitude,
+          city,
+          region: address?.state ?? address?.province ?? null,
+          country: address?.country ?? null,
+        });
+      } catch {
+        setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
+      }
+    }, () => {
+      setGps("denied");
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
   }, []);
 
   const denyLocation = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
     setGps("denied");
   }, []);
 
@@ -79,6 +132,7 @@ export default function FarmProvider({
     () => ({
       locationId,
       setLocationId,
+      deviceLocation,
       gps,
       locatedAt,
       requestLocation,
@@ -105,6 +159,7 @@ export default function FarmProvider({
     [
       locationId,
       setLocationId,
+      deviceLocation,
       gps,
       locatedAt,
       requestLocation,

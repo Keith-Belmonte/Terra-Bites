@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { UserButton } from "@clerk/tanstack-react-start";
+import { UserButton, useUser } from "@clerk/tanstack-react-start";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -69,9 +69,21 @@ const THEMES: Array<{ value: Theme; label: string; icon: LucideIcon }> = [
 
 function Profile() {
   const farm = useFarm();
+  const { isLoaded, user } = useUser();
   const { theme, setTheme } = useTheme();
   const loc = getLocation(farm.locationId);
-  const initials = farm.profile.name
+  const locationName = farm.deviceLocation
+    ? [farm.deviceLocation.city, farm.deviceLocation.region ?? farm.deviceLocation.country]
+        .filter(Boolean)
+        .join(", ") ||
+      `${farm.deviceLocation.latitude.toFixed(4)}, ${farm.deviceLocation.longitude.toFixed(4)}`
+    : loc.city;
+  const accountName =
+    user?.fullName ||
+    user?.firstName ||
+    user?.primaryEmailAddress?.emailAddress ||
+    "Account";
+  const initials = accountName
     .split(" ")
     .map((p) => p[0])
     .slice(0, 2)
@@ -90,11 +102,21 @@ function Profile() {
         {/* Profile card */}
         <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-4">
-            <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary font-serif text-2xl font-semibold text-primary-foreground">
-              {initials}
-            </span>
+            {isLoaded && user?.imageUrl ? (
+              <img
+                src={user.imageUrl}
+                alt={`${accountName} profile`}
+                className="size-16 shrink-0 rounded-2xl object-cover"
+              />
+            ) : (
+              <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary font-serif text-2xl font-semibold text-primary-foreground">
+                {initials}
+              </span>
+            )}
             <div className="min-w-0 flex-1">
-              <h2 className="truncate text-xl font-extrabold">{farm.profile.name}</h2>
+              <h2 className="truncate text-xl font-extrabold">
+                {isLoaded ? accountName : "Loading account..."}
+              </h2>
               <p className="truncate text-sm text-muted-foreground">
                 {farm.profile.farmName}
               </p>
@@ -113,7 +135,7 @@ function Profile() {
             >
               <MapPinIcon className="size-5 text-primary" />
               <p className="pt-1 text-xs font-semibold text-muted-foreground">Location</p>
-              <p className="truncate font-bold">{loc.city}</p>
+              <p className="truncate font-bold">{locationName}</p>
             </Link>
           </div>
           <p className="pt-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">

@@ -20,6 +20,14 @@ export type FarmProfile = {
   preferredCrops: string[];
 };
 
+export type DeviceLocation = {
+  latitude: number;
+  longitude: number;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
+
 export type NotificationPrefs = {
   alerts: boolean;
   weather: boolean;
@@ -36,6 +44,7 @@ export type DataSourcePrefs = {
 export type FarmState = {
   locationId: string;
   setLocationId: (id: string) => void;
+  deviceLocation: DeviceLocation | null;
   gps: GpsStatus;
   locatedAt: string | null;
   requestLocation: () => void;
