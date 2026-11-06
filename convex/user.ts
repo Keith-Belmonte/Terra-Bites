@@ -184,3 +184,18 @@ export const getDashboardData = query({
     };
   },
 });
+
+export const updateFieldMetrics = mutation({
+  args: {
+    fieldId: v.id("fields"),
+    soilMoisture: v.number(),
+    nitrogen: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // Direct cloud socket patch update
+    return await ctx.db.patch(args.fieldId, {
+      soilMoisture: args.soilMoisture,
+      nitrogen: args.nitrogen,
+    });
+  },
+});
