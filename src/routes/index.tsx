@@ -94,7 +94,7 @@ function Welcome() {
             <p className="text-base leading-7 text-muted-foreground max-w-md">
               {slide.description}
             </p>
-                       <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/"
                 className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-500 px-6 font-semibold text-white hover:bg-emerald-400 transition"
@@ -102,3 +102,9 @@ function Welcome() {
                 Go to Dashboard
               </Link>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

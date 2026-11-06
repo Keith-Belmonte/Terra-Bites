@@ -28,12 +28,15 @@ const CROP_PROFILES = [
 ];
 
 // Helper function to calculate how close a metric is to its ideal range
-function calculateMetricScore(value: number, min: number, max: number): number {
+export function calculateMetricScore(value: number, min: number, max: number): number {
   if (value >= min && value <= max) return 100; // Perfect score
+  
   if (value < min) {
+    if (min === 0) return 100; // Safe-guard against zero division
     const penalty = ((min - value) / min) * 100;
     return Math.max(0, 100 - penalty);
   } else {
+    if (max === 0) return 0; // Safe-guard against zero division
     const penalty = ((value - max) / max) * 100;
     return Math.max(0, 100 - penalty);
   }
