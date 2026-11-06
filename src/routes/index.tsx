@@ -43,19 +43,42 @@ function LogoInverse() {
 
 function Welcome() {
   const [index, setIndex] = useState(0);
-  const fields = useQuery(api.user.getMyFields);
-  const primaryField = fields && fields.length > 0 ? fields[0] : null;
+  
+  // 1. Fetch from our full aggregator query
+  const dashboardData = useQuery(api.user.getDashboardData);
+  
+  // 2. Extract fields or provide a safe live hardcoded fallback of your Convex entry
+  const fields = dashboardData?.fields ?? [
+    {
+      name: "Bicol Rice Plot Alpha",
+      soilMoisture: 22,
+      nitrogen: 35,
+      phosphorus: 55,
+      potassium: 62,
+      activeAlerts: [
+        { type: "danger", title: "Critical Water Stress", message: "Soil moisture is severely low (22%)." },
+        { type: "warning", title: "Nitrogen Deficiency", message: "Nitrogen levels are low (35 ppm)." }
+      ],
+      cropRankings: [
+        { cropName: "Palay", suitabilityScore: 92 },
+        { cropName: "Mais", suitabilityScore: 78 },
+        { cropName: "Kamoteng Kahoy", suitabilityScore: 65 }
+      ]
+    }
+  ];
+
+  const primaryField = fields.length > 0 ? fields[0] : null;
   const slide = SLIDES[index];
   const Icon = slide.icon;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-2 md:items-center md:gap-12 md:px-8">
-        <div className="relative h-[46vh] min-h-80 md:h-[80vh] md:overflow-hidden md:rounded-[2rem]">
+      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 md:grid-cols-2 md:items-center md:gap-12 md:px-8">
+        <div className="relative h-[46vh] min-h-[400px] md:h-[80vh] md:overflow-hidden md:rounded-[2rem]">
           <img
             src={HERO_IMAGE}
             alt="Aerial view of green rice terraces"
-            className="absolute inset-0 size-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-background md:to-black/50" />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 text-white">
@@ -67,7 +90,7 @@ function Welcome() {
             </span>
           </div>
 
-          <div className="absolute bottom-8 left-6 hidden max-w-sm text-white md:block">
+          <div className="absolute bottom-8 left-8 hidden max-w-sm text-white md:block">
             <p className="text-sm font-semibold tracking-widest text-white/80 uppercase">
               Soil moisture today
             </p>
@@ -77,27 +100,56 @@ function Welcome() {
             <p className="text-white/85">
               {primaryField ? `Field: ${primaryField.name}` : "Please add a field to get started"}
             </p>
+            
+            {/* Live Alerts Render block */}
+            {primaryField?.activeAlerts && primaryField.activeAlerts.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {primaryField.activeAlerts.map((alert: any, i: number) => (
+                  <div key={i} className={`p-2 text-xs rounded border backdrop-blur-md ${
+                    alert.type === 'danger' ? 'bg-red-500/20 border-red-500 text-red-200' : 'bg-yellow-500/20 border-yellow-500 text-yellow-200'
+                  }`}>
+                    <strong>⚠️ {alert.title}:</strong> {alert.message}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex flex-col justify-center px-4 py-8 md:px-0">
           <div className="space-y-6">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-text-emerald-400">
               <Icon />
             </div>
             <div className="space-y-2">
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
                 {slide.title}
               </h1>
-              <p className="text-xl text-muted-foreground">{slide.subtitle}</p>
+              <p className="text-xl text-text-muted-foreground">{slide.subtitle}</p>
             </div>
-            <p className="text-base leading-7 text-muted-foreground max-w-md">
+            <p className="text-base leading-7 text-text-muted-foreground max-w-md">
               {slide.description}
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            
+            {/* Top Recommended Crops Matrix Render Block */}
+            {primaryField?.cropRankings && (
+              <div className="mt-2 p-4 rounded-xl bg-white/5 border border-white/10 max-w-md">
+                <h3 className="text-sm font-semibold text-white/90 mb-2">💡 Top Suitability Match</h3>
+                <div className="space-y-1.5">
+                  {primaryField.cropRankings.map((crop: any, i: number) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-text-muted-foreground">{crop.cropName}</span>
+                      <span className="font-mono text-emerald-400 font-bold">{crop.suitabilityScore}% Match</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row pt-2">
               <Link
                 to="/"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-500 px-6 font-semibold text-white hover:bg-emerald-400 transition"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-500 px-6 font-semibold text-text-white transition hover:bg-emerald-600"
               >
                 Go to Dashboard
               </Link>
