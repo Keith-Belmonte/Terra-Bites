@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as alerts from "../alerts.js";
 import type * as crops from "../crops.js";
 import type * as generated_api from "../generated/api.js";
 import type * as generated_server from "../generated/server.js";
@@ -21,6 +22,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  alerts: typeof alerts;
   crops: typeof crops;
   "generated/api": typeof generated_api;
   "generated/server": typeof generated_server;
