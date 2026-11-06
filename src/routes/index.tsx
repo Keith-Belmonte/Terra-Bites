@@ -11,7 +11,14 @@ function ThemeToggle() {
   return <button className="p-1 text-xs uppercase opacity-80 hover:opacity-100">Theme</button>;
 }
 
-const SLIDES = [
+interface SlideType {
+  icon: () => JSX.Element;
+  title: string;
+  subtitle: string;
+  description: string;
+}
+
+const SLIDES: SlideType[] = [
   {
     icon: () => <span>🌱</span>,
     title: "Terra Bites",
@@ -20,13 +27,41 @@ const SLIDES = [
   }
 ];
 
+interface WeatherType {
+  totalRainfall: number;
+  droughtRisk: string;
+  recommendation: string;
+}
+
+interface AlertType {
+  type: string;
+  title: string;
+  message: string;
+}
+
+interface CropRankingType {
+  cropName: string;
+  suitabilityScore: number;
+}
+
+interface FieldData {
+  name: string;
+  soilMoisture: number;
+  nitrogen: number;
+  latitude: number;
+  longitude: number;
+  weather: WeatherType;
+  activeAlerts?: AlertType[];
+  cropRankings?: CropRankingType[];
+}
+
 export function Welcome() {
   const [formName, setFormName] = useState("Isabela Plot");
   const [moisture, setMoisture] = useState(65);
   const [nit, setNit] = useState(60);
   const [activeFieldIndex, setActiveFieldIndex] = useState(0);
 
-  const processFieldData = (field: any) => {
+  const processFieldData = (field: FieldData) => {
     const m = field.soilMoisture;
     const n = field.nitrogen;
     return {
@@ -45,9 +80,30 @@ export function Welcome() {
   };
 
   const allAvailableFields = [
-    processFieldData({ name: `${formName} (Simulated)`, soilMoisture: moisture, nitrogen: nit, latitude: 16.97, longitude: 121.81 }),
-    processFieldData({ name: "Bicol Rice Plot Alpha", soilMoisture: 22, nitrogen: 35, latitude: 14.11, longitude: 122.95 }),
-    processFieldData({ name: "Cagayan Corn Plot Delta", soilMoisture: 45, nitrogen: 75, latitude: 18.21, longitude: 121.73 })
+    processFieldData({
+      name: `${formName} (Simulated)`,
+      soilMoisture: moisture,
+      nitrogen: nit,
+      latitude: 16.97,
+      longitude: 121.81,
+      weather: { totalRainfall: 164, droughtRisk: "low", recommendation: "Climate parameters remain ideal for routine crop cultivation cycles." }
+    }),
+    processFieldData({
+      name: "Bicol Rice Plot Alpha",
+      soilMoisture: 22,
+      nitrogen: 35,
+      latitude: 14.11,
+      longitude: 122.95,
+      weather: { totalRainfall: 42, droughtRisk: "moderate", recommendation: "Slight soil drying trend observed. Monitor shallow root zones closely." }
+    }),
+    processFieldData({
+      name: "Cagayan Corn Plot Delta",
+      soilMoisture: 45,
+      nitrogen: 75,
+      latitude: 18.21,
+      longitude: 121.73,
+      weather: { totalRainfall: 285, droughtRisk: "low", recommendation: "Excessive moisture volumes detected. Verify active field drainage gates." }
+    })
   ];
   
   const primaryField = allAvailableFields[activeFieldIndex < allAvailableFields.length ? activeFieldIndex : 0];
@@ -68,7 +124,7 @@ export function Welcome() {
             <ThemeToggle />
           </div>
 
-          <div className="absolute bottom-8 left-8 max-w-sm">
+          <div className="absolute bottom-8 left-8 max-w-sm w-[calc(100%-4rem)]">
             <div className="mb-4 flex flex-wrap gap-1.5 bg-black/50 p-1.5 rounded-xl border border-white/10">
               {allAvailableFields.map((field, idx) => (
                 <button
@@ -92,9 +148,9 @@ export function Welcome() {
               📍 GPS: {primaryField.latitude.toFixed(2)}°N, {primaryField.longitude.toFixed(2)}°E
             </p>
             
-            {primaryField.activeAlerts.length > 0 && (
+            {primaryField.activeAlerts && primaryField.activeAlerts.length > 0 && (
               <div className="mt-4 space-y-2 max-w-xs">
-                {primaryField.activeAlerts.map((alert: any, i: number) => (
+                {primaryField.activeAlerts.map((alert: AlertType, i: number) => (
                   <div key={i} className={`p-2 text-xs rounded border backdrop-blur-md ${
                     alert.type === 'danger' ? 'bg-red-500/20 border-red-500/50 text-red-200' : 'bg-yellow-500/20 border-yellow-500/50 text-yellow-200'
                   }`}>
@@ -121,7 +177,7 @@ export function Welcome() {
             <div className="p-4 rounded-xl bg-white/5 border border-white/10 max-w-md">
               <h3 className="text-xs font-semibold text-white/70 mb-2.5 uppercase tracking-wider">💡 Suitability Match Profile</h3>
               <div className="space-y-2">
-                {primaryField.cropRankings.map((crop: any, i: number) => (
+                {primaryField.cropRankings?.map((crop: CropRankingType, i: number) => (
                   <div key={i} className="flex justify-between text-sm items-center border-b border-white/5 pb-1 last:border-0">
                     <span className="text-gray-300">{crop.cropName}</span>
                     <span className="font-mono text-emerald-400 font-bold">{crop.suitabilityScore}% Match</span>
@@ -130,46 +186,40 @@ export function Welcome() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 max-w-md space-y-4">
-              <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">🎛️ Real-Time Metric Controller</h3>
-              
-              <div>
-                <label className="text-[11px] text-gray-400 block mb-1">Simulated Plot Title Name</label>
-                <input 
-                  type="text" 
-                  value={formName} 
-                  onChange={(e) => setFormName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-emerald-500"
-                />
+            {/* Satellite Climate Insights Display Card */}
+            {primaryField.weather && (
+              <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 max-w-md space-y-1">
+                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider">🌤️ Satellite Climate Intelligence</h3>
+                <div className="flex justify-between text-xs text-gray-300 pt-1">
+                  <span>Seasonal Rainfall Volume:</span>
+                  <span className="font-mono font-bold text-white">{primaryField.weather.totalRainfall} mm</span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-300">
+                  <span>Calculated Drought Risk Index:</span>
+                  <span className={`font-mono font-bold uppercase ${primaryField.weather.droughtRisk === 'high' ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {primaryField.weather.droughtRisk}
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400 pt-1 border-t border-white/5 mt-1">
+                  {primaryField.weather.recommendation}
+                </p>
               </div>
+            )}
 
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-[11px] mb-1">
-                    <span className="text-gray-400">Soil Moisture Metric</span>
-                    <span className="text-emerald-400 font-mono font-bold">{moisture}%</span>
-                  </div>
-                  <input type="range" min="0" max="100" value={moisture} onChange={(e) => setMoisture(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-lg accent-emerald-500 cursor-pointer" />
+            {/* Simulated Live Tweak Sliders */}
+            {activeFieldIndex === 0 && (
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 max-w-md space-y-4">
+                <h3 className="text-xs font-semibold text-white/70 uppercase tracking-wider">⚙️ Simulation Parameters ({formName})</h3>
+                
+                {/* Field Custom Name Input */}
+                <div className="space-y-1">
+                  <label className="text-[11px] text-gray-400 block">Plot Location Identifier</label>
+                  <input 
+                    type="text" 
+                    value={formName} 
+                    onChange={(e) => setFormName(e.target.value)}
+                    className="w-full bg-[#2a2a27] border border-white/10 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-500 text-white"
+                  />
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-[11px] mb-1">
-                    <span className="text-gray-400">Nitrogen Level (N)</span>
-                    <span className="text-emerald-400 font-mono font-bold">{nit} ppm</span>
-                  </div>
-                  <input type="range" min="0" max="120" value={nit} onChange={(e) => setNit(Number(e.target.value))} className="w-full h-1 bg-white/10 rounded-lg accent-emerald-500 cursor-pointer" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-export const Route = createFileRoute("/")({
-  component: Welcome,
-});
+                {/* Soil Moisture Slider */}

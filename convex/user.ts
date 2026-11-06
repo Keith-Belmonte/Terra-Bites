@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { rankCrops } from "./crops";
 import { generateAlertsForField } from "./alerts";
 import { adaptExternalWeatherData } from "./weather";
+import { aggregateWeatherData } from "./weatherAnalytics";
 
 export const updateCurrentUser = mutation({
   args: {},
@@ -129,7 +130,7 @@ export const createField = mutation({
   },
 });
 
-// === FULL-STACK AGGREGATOR ENDPOINT ===
+// === FULL-STACK AGGREGATOR ENDPOINT WITH LIVE GPS WEATHER INSIGHTS ===
 export const getDashboardData = query({
   args: {},
   handler: async (ctx) => {
@@ -150,13 +151,15 @@ export const getDashboardData = query({
       .filter((q) => q.eq(q.field("userId"), user._id))
       .collect();
 
-    const simulatedTemps = JSON.parse(
-      "[29.5, 30.1, 28.7, 29.0, 31.2, 29.8, 30.5]",
-    ) as number[];
-    const simulatedRain = JSON.parse(
-      "[18.5, 25.0, 8.2, 0, 14.1, 40.2, 22.1]",
-    ) as number[];
-    const weatherData = adaptExternalWeatherData(simulatedTemps, simulatedRain);
+    // Weather snapshots simulated baseline data inputs
+    const simulatedTemps = [29.5, 30.1, 28.7, 29.0, 31.2, 29.8, 30.5];
+    const simulatedRain = [18.5, 25.0, 8.2, 0, 14.1, 40.2, 22.1];
+    
+    // Adapt general metrics
+    const baseWeatherData = adaptExternalWeatherData(simulatedTemps, simulatedRain);
+    
+    // Execute our step 12 weather history calculations summary profile
+    const historicalWeatherInsights = aggregateWeatherData(simulatedTemps, simulatedRain);
 
     const enrichedFields = fields.map((field) => {
       const cropRankings = [
@@ -177,13 +180,18 @@ export const getDashboardData = query({
         ...field,
         cropRankings,
         activeAlerts,
-        weather: weatherData,
+        weather: {
+          ...baseWeatherData,
+          totalRainfall: historicalWeatherInsights.totalRainfall,
+          droughtRisk: historicalWeatherInsights.droughtRisk,
+          recommendation: historicalWeatherInsights.recommendation
+        },
       };
     });
 
     return {
       fields: enrichedFields,
-      globalWeather: weatherData,
+      globalWeather: baseWeatherData,
     };
   },
 });
@@ -195,7 +203,6 @@ export const updateFieldMetrics = mutation({
     nitrogen: v.number(),
   },
   handler: async (ctx, args) => {
-    // Direct cloud socket patch update
     return await ctx.db.patch(args.fieldId, {
       soilMoisture: args.soilMoisture,
       nitrogen: args.nitrogen,
