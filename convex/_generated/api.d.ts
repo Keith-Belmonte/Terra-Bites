@@ -12,6 +12,7 @@ import type * as crops from "../crops.js";
 import type * as generated_api from "../generated/api.js";
 import type * as generated_server from "../generated/server.js";
 import type * as user from "../user.js";
+import type * as weather from "../weather.js";
 
 import type {
   ApiFromModules,
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   "generated/api": typeof generated_api;
   "generated/server": typeof generated_server;
   user: typeof user;
+  weather: typeof weather;
 }>;
 
 /**

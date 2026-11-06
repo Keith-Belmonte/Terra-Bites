@@ -25,6 +25,6 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["./**/*"],
+  "include": ["./**/*", "../.agents/skills/convex/weather.ts"],
   "exclude": ["./_generated"]
 }
