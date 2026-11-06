@@ -7,13 +7,16 @@ export default defineSchema({
     name: v.optional(v.string()),
     email: v.optional(v.string()),
   }).index("by_token", ["tokenIdentifier"]),
-    fields: defineTable({
+  
+  fields: defineTable({
     userId: v.string(),
     name: v.string(),
     soilMoisture: v.number(),
     nitrogen: v.number(),
     phosphorus: v.number(),
     potassium: v.number(),
+    // Make coordinates optional so existing rows don't break the system!
+    latitude: v.optional(v.number()),
+    longitude: v.optional(v.number()),
   }),
-
 });

@@ -90,6 +90,8 @@ export const createField = mutation({
     nitrogen: v.number(),
     phosphorus: v.number(),
     potassium: v.number(),
+    latitude: v.number(),
+    longitude: v.number(),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -121,6 +123,8 @@ export const createField = mutation({
       nitrogen: args.nitrogen,
       phosphorus: args.phosphorus,
       potassium: args.potassium,
+      latitude: args.latitude,
+      longitude: args.longitude,
     });
   },
 });
@@ -155,12 +159,11 @@ export const getDashboardData = query({
     const weatherData = adaptExternalWeatherData(simulatedTemps, simulatedRain);
 
     const enrichedFields = fields.map((field) => {
-            const cropRankings = [
+      const cropRankings = [
         { cropName: "Palay", suitabilityScore: 92, breakdown: { moisture: 90, nitrogen: 95, phosphorus: 90, potassium: 93 } },
         { cropName: "Mais", suitabilityScore: 78, breakdown: { moisture: 80, nitrogen: 75, phosphorus: 80, potassium: 77 } },
         { cropName: "Kamoteng Kahoy", suitabilityScore: 65, breakdown: { moisture: 60, nitrogen: 65, phosphorus: 70, potassium: 65 } }
       ];
-
 
       const activeAlerts = generateAlertsForField({
         name: field.name,
