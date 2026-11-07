@@ -15,8 +15,14 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function Dashboard() {
-  const { locationId, profile, units } = useFarm();
+  const { locationId, deviceLocation, profile, units } = useFarm();
   const location = getLocation(locationId);
+  const locationName = deviceLocation
+    ? [deviceLocation.city, deviceLocation.region ?? deviceLocation.country]
+        .filter(Boolean)
+        .join(", ") ||
+      `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
+    : `${location.city}, ${location.province}`;
   const sections = [
     {
       title: "Field overview",
@@ -67,7 +73,7 @@ function Dashboard() {
         </h2>
         <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <MapPinIcon className="size-4 shrink-0" />
-          {location.city}, {location.province}
+          {locationName}
         </p>
         <div className="mt-6 flex flex-wrap gap-x-10 gap-y-4 border-t border-border pt-5">
           <div>
