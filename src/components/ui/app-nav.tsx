@@ -3,6 +3,7 @@ import {
   BotMessageSquareIcon,
   ChartAreaIcon,
   HouseIcon,
+  LayoutDashboardIcon,
   SproutIcon,
   UserRoundIcon,
   type LucideIcon,
@@ -17,6 +18,11 @@ const TABS: Array<{ label: string; to: RoutePath; icon: LucideIcon }> = [
   { label: "Crops", to: "/crops", icon: SproutIcon },
   { label: "Assistant", to: "/assistant", icon: BotMessageSquareIcon },
   { label: "Profile", to: "/profile", icon: UserRoundIcon },
+];
+
+const SIDE_TABS: Array<{ label: string; to: RoutePath; icon: LucideIcon }> = [
+  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboardIcon },
+  ...TABS,
 ];
 
 export function BottomNav() {
@@ -51,7 +57,7 @@ export function SideNav() {
         <Logo />
       </Link>
       <nav aria-label="Main" className="flex flex-col gap-1">
-        {TABS.map(({ label, to, icon: Icon }) => (
+        {SIDE_TABS.map(({ label, to, icon: Icon }) => (
           <Link
             key={to}
             to={to}

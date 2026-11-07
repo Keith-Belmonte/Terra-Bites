@@ -128,30 +128,21 @@ export function Welcome() {
         cropName: "Palay",
         suitabilityScore: Math.max(
           20,
-          Math.min(
-            100,
-            Math.round(100 - Math.abs(m - 75) - Math.abs(n - 70))
-          )
+          Math.min(100, Math.round(100 - Math.abs(m - 75) - Math.abs(n - 70))),
         ),
       },
       {
         cropName: "Mais",
         suitabilityScore: Math.max(
           20,
-          Math.min(
-            100,
-            Math.round(100 - Math.abs(m - 45) - Math.abs(n - 50))
-          )
+          Math.min(100, Math.round(100 - Math.abs(m - 45) - Math.abs(n - 50))),
         ),
       },
       {
         cropName: "Kamoteng Kahoy",
         suitabilityScore: Math.max(
           20,
-          Math.min(
-            100,
-            Math.round(100 - Math.abs(m - 30) - Math.abs(n - 40))
-          )
+          Math.min(100, Math.round(100 - Math.abs(m - 30) - Math.abs(n - 40))),
         ),
       },
     ].sort((a, b) => b.suitabilityScore - a.suitabilityScore);
@@ -218,7 +209,7 @@ export function Welcome() {
         className="pointer-events-none absolute -top-40 right-[-8rem] -z-10 size-[34rem] rounded-full bg-emerald-500/10 blur-3xl"
       />
       <div className="mx-auto grid min-h-screen max-w-7xl grid-cols-1 gap-8 px-4 py-6 sm:px-8 md:grid-cols-2 md:items-center md:gap-14 md:py-10">
-        {/* LEFT AREA PANEL */}
+        {/* LEFT AREA PANEL: HERO GRAPHIC / SIGN IN PORTAL */}
         <div className="relative h-[56vh] min-h-[430px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#18221b] shadow-2xl shadow-black/30 md:h-[min(78vh,780px)] md:min-h-[620px]">
           <img
             src={HERO_IMAGE}
@@ -227,6 +218,7 @@ export function Welcome() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-[#08100b]/95" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-transparent" />
+
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-5 sm:p-7">
             <span className="rounded-full border border-white/15 bg-black/25 px-3 py-2 backdrop-blur-md">
               <LogoInverse />
@@ -242,266 +234,186 @@ export function Welcome() {
             )}
           </div>
 
-          {/* LOGGED-IN METRIC OVERLAY */}
-          {isSignedIn && (
-            <div className="absolute inset-x-5 bottom-5 z-10 max-w-md sm:inset-x-7 sm:bottom-7">
-              <div className="mb-5 flex flex-wrap gap-1.5 rounded-2xl border border-white/15 bg-black/35 p-1.5 backdrop-blur-xl">
-                {allAvailableFields.map((field, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setActiveFieldIndex(idx)}
-                    className={`rounded-xl px-3 py-2 text-[11px] font-medium transition-all ${
-                      activeFieldIndex === idx
-                        ? "bg-emerald-400 font-bold text-[#102018]"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    {field.name.split(" ")[0]}
-                  </button>
-                ))}
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-black/30 p-4 backdrop-blur-xl sm:p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/65">
-                      Soil moisture today
-                    </p>
-                    <p className="mt-1 font-serif text-6xl font-semibold leading-none tracking-tight sm:text-7xl">
-                      {primaryField.soilMoisture}
-                      <span className="ml-1 text-3xl text-emerald-300">%</span>
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-200">
-                    Field snapshot
-                  </span>
-                </div>
-                <p className="mt-3 truncate text-sm font-semibold text-white">
-                  {primaryField.name}
-                </p>
-                <p className="mt-1 font-mono text-[10px] tracking-wide text-white/60">
-                  {primaryField.latitude.toFixed(2)}°N,{" "}
-                  {primaryField.longitude.toFixed(2)}°E
-                </p>
-              </div>
+          {/* APP DESCRIPTION TEXT */}
+          <div className="absolute inset-x-6 top-24 z-10 max-w-md sm:inset-x-8 sm:top-28">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-sm">
+              <Icon />
+            </div>
+            <h2 className="mt-4 font-serif text-3xl font-medium tracking-tight sm:text-4xl text-white">
+              {slide.title}
+            </h2>
+            <p className="text-xs uppercase tracking-widest text-emerald-400 font-bold mt-1">
+              {slide.subtitle}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-white/70 max-w-xs">
+              {slide.description}
+            </p>
+          </div>
 
-              {primaryField.activeAlerts && primaryField.activeAlerts.length > 0 && (
-                <div className="mt-3 max-w-md space-y-2">
-                  {primaryField.activeAlerts.map((alert, i) => (
-                    <div
-                      key={i}
-                      className={`rounded-xl border p-3 text-xs leading-relaxed backdrop-blur-md ${
-                        alert.type === "danger"
-                          ? "border-red-500/50 bg-red-500/20 text-red-200"
-                          : "border-yellow-500/50 bg-yellow-500/20 text-yellow-200"
+          {/* BOTTOM METRIC PANEL OR AUTH INITIATION */}
+          <div className="absolute inset-x-5 bottom-5 z-10 max-w-md sm:inset-x-7 sm:bottom-7">
+            {!isSignedIn ? (
+              <div className="rounded-2xl border border-white/15 bg-black/40 p-6 backdrop-blur-xl text-center">
+                <p className="text-sm text-white/80 mb-4">
+                  Sign in to view your field dashboard and recommendations.
+                </p>
+                <SignInButton mode="modal">
+                  <button className="w-full rounded-xl bg-emerald-400 py-3 text-sm font-bold text-[#102018] shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-300">
+                    Authenticate Account Gateway
+                  </button>
+                </SignInButton>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-4 flex flex-wrap gap-1.5 rounded-2xl border border-white/15 bg-black/35 p-1.5 backdrop-blur-xl">
+                  {allAvailableFields.map((field, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveFieldIndex(idx)}
+                      className={`rounded-xl px-3 py-2 text-[11px] font-medium transition-all ${
+                        activeFieldIndex === idx
+                          ? "bg-emerald-400 font-bold text-[#102018]"
+                          : "text-white/70 hover:bg-white/10 hover:text-white"
                       }`}
                     >
-                      <strong>⚠️ {alert.title}:</strong> {alert.message}
-                    </div>
+                      {field.name.split(" ")[0]}
+                    </button>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* LOGGED-OUT VISUAL GUIDE OVERLAY */}
-          {!isSignedIn && (
-            <div className="absolute inset-x-5 bottom-6 z-10 max-w-md sm:inset-x-8 sm:bottom-8">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-200 backdrop-blur-md">
-                <span className="size-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(110,231,183,0.9)]" />
-                Your farm, in focus
-              </span>
-              <h2 className="mt-4 font-serif text-3xl font-semibold leading-tight text-white sm:text-4xl">
-                Know your land.
-                <span className="block text-emerald-200">Grow with confidence.</span>
-              </h2>
-              <p className="mt-3 max-w-sm text-sm leading-6 text-white/75">
-                Clear field insights help you make thoughtful decisions for every growing season.
-              </p>
-            </div>
-          )}
+                <div className="rounded-2xl border border-white/15 bg-black/30 p-4 backdrop-blur-xl sm:p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/65">
+                        Soil Moisture Layer
+                      </p>
+                      <p className="mt-1 text-5xl font-semibold leading-none tracking-tight text-white">
+                        {primaryField.soilMoisture}%
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/65">
+                        Rainfall
+                      </p>
+                      <p className="mt-1 text-2xl font-semibold text-white">
+                        {primaryField.weather.totalRainfall} mm
+                      </p>
+                      <p className="text-xs capitalize text-white/65">
+                        {primaryField.weather.droughtRisk} drought risk
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-3 truncate text-sm font-semibold text-white">
+                    {primaryField.name}
+                  </p>
+                  <p className="mt-1 font-mono text-[10px] tracking-wide text-white/60">
+                    {primaryField.latitude.toFixed(2)}°N,{" "}
+                    {primaryField.longitude.toFixed(2)}°E
+                  </p>
+                </div>
+                {primaryField.activeAlerts &&
+                  primaryField.activeAlerts.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {primaryField.activeAlerts.map((alert) => (
+                        <div
+                          key={alert.title}
+                          className={`rounded-xl border p-3 text-xs leading-relaxed backdrop-blur-md ${
+                            alert.type === "danger"
+                              ? "border-red-500/50 bg-red-500/20 text-red-200"
+                              : "border-yellow-500/50 bg-yellow-500/20 text-yellow-200"
+                          }`}
+                        >
+                          <strong>⚠️ {alert.title}:</strong> {alert.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* RIGHT DYNAMIC CONTROLS PANEL */}
         <div className="flex flex-col justify-center px-1 py-5 sm:px-3 md:px-0 md:py-0">
           <div className="max-w-xl space-y-7">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-300/15 bg-emerald-300/10 text-3xl text-emerald-200 shadow-lg shadow-emerald-950/20">
               <Icon />
             </div>
 
-            <div>
-              {isSignedIn ? (
-                <>
-                  <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+            {isSignedIn ? (
+              <>
+                <div>
+                  <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
                     Welcome back,{" "}
-                    <span className="text-emerald-400">
-                      {user?.firstName || "Operator"}
+                    <span className="text-emerald-300">
+                      {user?.firstName || "farmer"}
                     </span>
                   </h1>
-
-                  <p className="mt-5 text-lg font-medium text-slate-200">
-                    {slide.subtitle}
-                  </p>
-
-                  <p className="mt-3 max-w-lg text-sm leading-7 text-slate-400 sm:text-base">
+                  <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">
                     {slide.description}
                   </p>
+                </div>
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => navigate({ to: "/insights" })}
-                      className="cursor-pointer rounded-full bg-emerald-300 px-6 py-3 text-sm font-bold text-[#102018] shadow-lg shadow-emerald-950/25 transition hover:-translate-y-0.5 hover:bg-emerald-200"
-                    >
-                      View crop insights
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigate({ to: "/home" })}
-                      className="cursor-pointer rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      Inspect fields
-                    </button>
-                  </div>
-
-                  <div className="mt-8 grid gap-4">
-                    <section
-                      aria-labelledby="suitability-heading"
-                      className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-lg shadow-black/10"
-                    >
-                      <h2
-                        id="suitability-heading"
-                        className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-200"
+                <section className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                  <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-200">
+                    Crop suitability · sample estimate
+                  </h2>
+                  <div className="mt-4 space-y-3">
+                    {primaryField.cropRankings?.map((crop) => (
+                      <div
+                        key={crop.cropName}
+                        className="flex items-center justify-between gap-4 text-sm"
                       >
-                        <span aria-hidden="true">💡</span>
-                        Suitability match profile
-                      </h2>
-                      <div className="mt-4 space-y-3">
-                        {primaryField.cropRankings?.map((crop) => (
-                          <div
-                            key={crop.cropName}
-                            className="flex items-center justify-between gap-4 text-sm"
-                          >
-                            <span className="text-slate-300">{crop.cropName}</span>
-                            <span className="font-mono font-semibold text-emerald-300">
-                              {crop.suitabilityScore}% Match
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section
-                      aria-labelledby="simulator-heading"
-                      className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.07] p-5 shadow-lg shadow-black/10"
-                    >
-                      <h2
-                        id="simulator-heading"
-                        className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-emerald-200"
-                      >
-                        <span aria-hidden="true">▦</span>
-                        Active simulator variables
-                      </h2>
-                      <div className="mt-4">
-                        <label
-                          htmlFor="simulated-plot-name"
-                          className="text-xs font-medium text-slate-400"
-                        >
-                          Simulated plot name
-                        </label>
-                        <input
-                          id="simulated-plot-name"
-                          type="text"
-                          value={formName}
-                          onChange={(event) => setFormName(event.target.value)}
-                          className="mt-1.5 h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-white outline-none transition focus:border-emerald-300/50 focus:ring-2 focus:ring-emerald-300/20"
-                        />
-                      </div>
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <label
-                            htmlFor="simulated-soil-moisture"
-                            className="text-xs font-medium text-slate-400"
-                          >
-                            Soil moisture metric
-                          </label>
-                          <output
-                            htmlFor="simulated-soil-moisture"
-                            className="font-mono text-xs font-semibold text-emerald-300"
-                          >
-                            {moisture}%
-                          </output>
-                        </div>
-                        <input
-                          id="simulated-soil-moisture"
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={moisture}
-                          onChange={(event) =>
-                            setMoisture(Number(event.target.value))
-                          }
-                          className="mt-2 h-2 w-full cursor-pointer accent-emerald-400"
-                        />
-                      </div>
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <label
-                            htmlFor="simulated-nitrogen"
-                            className="text-xs font-medium text-slate-400"
-                          >
-                            Nitrogen level (N)
-                          </label>
-                          <output
-                            htmlFor="simulated-nitrogen"
-                            className="font-mono text-xs font-semibold text-emerald-300"
-                          >
-                            {nit} ppm
-                          </output>
-                        </div>
-                        <input
-                          id="simulated-nitrogen"
-                          type="range"
-                          min="0"
-                          max="120"
-                          value={nit}
-                          onChange={(event) => setNit(Number(event.target.value))}
-                          className="mt-2 h-2 w-full cursor-pointer accent-emerald-400"
-                        />
-                      </div>
-                    </section>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-                    Better decisions,
-                    <span className="mt-1 block text-emerald-300">start in your field.</span>
-                  </h1>
-
-                  <p className="mt-5 text-lg font-medium text-slate-200">
-                    {slide.subtitle}
-                  </p>
-
-                  <p className="mt-3 max-w-lg text-sm leading-7 text-slate-400 sm:text-base">
-                    {slide.description}
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap items-center gap-4">
-                    <div className="inline-block">
-                      <SignInButton mode="redirect" forceRedirectUrl="/home">
-                        <span className="inline-flex cursor-pointer items-center justify-center rounded-full bg-emerald-300 px-7 py-3.5 text-sm font-bold text-[#102018] shadow-lg shadow-emerald-950/25 transition hover:-translate-y-0.5 hover:bg-emerald-200">
-                          Sign in
+                        <span className="text-slate-300">{crop.cropName}</span>
+                        <span className="font-mono font-semibold text-emerald-300">
+                          {crop.suitabilityScore}% match
                         </span>
-                      </SignInButton>
-                    </div>
-                    <span className="text-xs text-slate-400">
-                      Get a clearer picture of your farm
-                    </span>
+                      </div>
+                    ))}
                   </div>
-                </>
-              )}
-            </div>
+                </section>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/home" })}
+                    className="rounded-full bg-emerald-300 px-6 py-3 text-sm font-bold text-[#102018] transition hover:bg-emerald-200"
+                  >
+                    Open dashboard
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/insights" })}
+                    className="rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    View insights
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+                    Better decisions,
+                    <span className="mt-1 block text-emerald-300">
+                      start in your field.
+                    </span>
+                  </h1>
+                  <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">
+                    Explore field conditions, crop suitability, and practical
+                    guidance for your growing season.
+                  </p>
+                </div>
+                <SignInButton mode="redirect" forceRedirectUrl="/home">
+                  <button
+                    type="button"
+                    className="w-fit rounded-full bg-emerald-300 px-7 py-3.5 text-sm font-bold text-[#102018] shadow-lg shadow-emerald-950/25 transition hover:bg-emerald-200"
+                  >
+                    Sign in to get started
+                  </button>
+                </SignInButton>
+              </>
+            )}
           </div>
         </div>
       </div>

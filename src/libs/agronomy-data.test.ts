@@ -90,7 +90,7 @@ describe("provider observation adapters", () => {
       source: "NASA MODIS",
     });
     expect(() => adaptModisObservation({ ndvi: 15000 }, OBSERVED_AT)).toThrow(
-      "NASA MODIS NDVI",
+      "NASA MODIS raw NDVI",
     );
     expect(() => adaptModisObservation({ ndvi: -3000 }, OBSERVED_AT)).toThrow(
       "NASA MODIS raw NDVI",
@@ -118,7 +118,7 @@ describe("dashboard data adapters", () => {
 
   test("creates alerts and insight from measured values only", () => {
     const observations = [
-      adaptSmapObservation({ soilMoisture: 0.18, unit: "m3/m3" }, OBSERVED_AT),
+      adaptSmapObservation({ soil_moisture: 0.18, unit: "m3/m3" }, OBSERVED_AT),
       ...adaptRegionalSample(LOCATIONS[0]).filter(
         (observation) => observation.metric === "rainfallOutlook30d",
       ),

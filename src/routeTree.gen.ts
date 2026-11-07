@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppLocationRouteImport } from './routes/_app/location'
@@ -33,6 +34,11 @@ const AppRoute = AppRouteImport.update({
 const AppAssistantRoute = AppAssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHomeRoute = AppHomeRouteImport.update({
@@ -79,6 +85,7 @@ const AppCropsCropIdRoute = AppCropsCropIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AppAssistantRoute
+  '/dashboard': typeof AppDashboardRoute
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AppAssistantRoute
+  '/dashboard': typeof AppDashboardRoute
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/assistant': typeof AppAssistantRoute
+  '/_app/dashboard': typeof AppDashboardRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/insights': typeof AppInsightsRoute
   '/_app/location': typeof AppLocationRoute
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/dashboard'
     | '/home'
     | '/insights'
     | '/location'
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistant'
+    | '/dashboard'
     | '/home'
     | '/insights'
     | '/location'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_app/assistant'
+    | '/_app/dashboard'
     | '/_app/home'
     | '/_app/insights'
     | '/_app/location'
@@ -182,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof AppAssistantRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/home': {
@@ -245,6 +264,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAssistantRoute: typeof AppAssistantRoute
+  AppDashboardRoute: typeof AppDashboardRoute
   AppHomeRoute: typeof AppHomeRoute
   AppInsightsRoute: typeof AppInsightsRoute
   AppLocationRoute: typeof AppLocationRoute
@@ -255,6 +275,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAssistantRoute: AppAssistantRoute,
+  AppDashboardRoute: AppDashboardRoute,
   AppHomeRoute: AppHomeRoute,
   AppInsightsRoute: AppInsightsRoute,
   AppLocationRoute: AppLocationRoute,
