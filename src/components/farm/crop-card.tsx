@@ -1,15 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDaysIcon, DropletIcon, TrendingUpIcon } from "lucide-react";
+import { ClockIcon, DropletIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import SuitabilityRing from "./suitability-ring.tsx";
-import { suitabilityLabel } from "@/lib/mock/crops.ts";
+import { suitabilityLabel } from "@/lib/crops.ts";
 import type { ScoredCrop } from "@/lib/recommend.ts";
 import { cn } from "@/lib/utils.ts";
 
 /** Compact card for horizontal scrollers on the dashboard. */
 export function CropTile({ item }: { item: ScoredCrop }) {
   const { crop, score } = item;
-  const reason = item.reasons.find((r) => r.kind === "good")?.text ?? crop.reason;
+  const reason =
+    item.reasons.find((r) => r.kind === "good")?.text ??
+    "Compared with your soil profile and the local weather forecast.";
   return (
     <Link
       to="/crops/$cropId"
@@ -31,8 +33,8 @@ export function CropTile({ item }: { item: ScoredCrop }) {
         <div>
           <h3 className="text-lg font-bold">{crop.name}</h3>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <CalendarDaysIcon className="size-4" />
-            {crop.plantingWindow}
+            <DropletIcon className="size-4" />
+            {crop.water} water need
           </p>
         </div>
         <p className="line-clamp-2 text-sm">{reason}</p>
@@ -68,16 +70,12 @@ export function CropRow({ item }: { item: ScoredCrop }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="secondary" className="gap-1">
-            <TrendingUpIcon /> {crop.yieldLevel} yield
+            <ClockIcon /> {crop.daysToHarvest}
           </Badge>
           <Badge variant="secondary" className="gap-1">
             <DropletIcon /> {crop.water} water
           </Badge>
         </div>
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-          <CalendarDaysIcon className="size-4" />
-          Plant {crop.plantingWindow}
-        </p>
       </div>
     </Link>
   );

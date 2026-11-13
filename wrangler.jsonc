@@ -1,9 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "app",
+  "name": "terra-bites",
   "compatibility_date": "2026-06-28",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
+  "ai": {
+    "binding": "AI",
+    "remote": true,
+  },
   "observability": {
     "enabled": true,
   },

@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { MapPinIcon, SearchXIcon, SlidersHorizontalIcon, XIcon } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  MapPinIcon,
+  SearchXIcon,
+  SlidersHorizontalIcon,
+  XIcon,
+} from "lucide-react";
 import ScreenHeader from "@/components/ui/screen-header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -30,8 +35,7 @@ import {
   FILTER_LABELS,
   type Crop,
   type CropFilterKey,
-} from "@/lib/mock/crops.ts";
-import { getLocation } from "@/lib/format.ts";
+} from "@/lib/crops.ts";
 import { cn } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_app/crops/")({
@@ -77,15 +81,21 @@ function matches(crop: Crop, filters: Filters): boolean {
 }
 
 function Crops() {
-  const { locationId } = useFarm();
-  const { ranked } = useRecommendations();
-  const loc = getLocation(locationId);
+  const { location } = useFarm();
+  const { ranked, regionalOptions, forecastSource } = useRecommendations();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [quickType, setQuickType] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const active = { ...filters, type: quickType ? [quickType] : filters.type };
-  const list = ranked.filter((r) => matches(r.crop, active));
+  const candidates = showAll ? ranked : regionalOptions;
+  const list = candidates.filter((r) => matches(r.crop, active));
   const activeCount = FILTER_KEYS.reduce((n, k) => n + active[k].length, 0);
+  const regionLabel = location
+    ? [location.city, location.province, location.country]
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   const toggle = (key: CropFilterKey, value: string) => {
     if (key === "type") setQuickType(null);
@@ -108,7 +118,10 @@ function Crops() {
         title="Crops"
         subtitle={
           <span className="inline-flex items-center gap-1">
-            <MapPinIcon className="size-3.5" /> Suited to {loc.city}
+            <MapPinIcon className="size-3.5" />
+            {location
+              ? `Weather-based analysis for ${regionLabel}`
+              : "Set a farm location to analyze crops"}
           </span>
         }
         actions={
@@ -135,7 +148,9 @@ function Crops() {
               className="max-h-[85vh] overflow-y-auto rounded-t-3xl md:mx-auto md:max-w-xl"
             >
               <SheetHeader>
-                <SheetTitle className="font-serif text-2xl">Filter crops</SheetTitle>
+                <SheetTitle className="font-serif text-2xl">
+                  Filter crops
+                </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-5 px-4">
                 {FILTER_KEYS.map((key) => (
@@ -168,7 +183,10 @@ function Crops() {
                 </Button>
                 <SheetClose
                   render={
-                    <Button size="lg" className="h-12 flex-1 rounded-xl font-bold" />
+                    <Button
+                      size="lg"
+                      className="h-12 flex-1 rounded-xl font-bold"
+                    />
                   }
                 >
                   Show {list.length} crops
@@ -206,18 +224,78 @@ function Crops() {
           ))}
         </div>
 
+        {ranked.length > 0 && (
+          <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-bold">
+                {showAll
+                  ? `Full reference catalog · ${ranked.length} crops`
+                  : `Best ${regionalOptions.length} matches for ${regionLabel}`}
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="rounded-full font-bold"
+                onClick={() => setShowAll((value) => !value)}
+              >
+                {showAll
+                  ? "Show best local matches"
+                  : `Explore all ${ranked.length} crops`}
+              </Button>
+            </div>
+            <p className="pt-1 text-xs text-muted-foreground">
+              Ranked using {forecastSource ?? "local"} temperature and rainfall
+              forecasts, soil, and your priorities. NASA GEOS-CF is used when
+              available (its five-day rainfall is extrapolated to a seven-day
+              estimate); Open-Meteo is the fallback. This is a growing-condition
+              estimate, not verified seed availability; confirm locally adapted
+              varieties and supply with an agricultural extension service.
+            </p>
+          </section>
+        )}
+
         {activeCount > 0 && (
           <div className="flex items-center justify-between pt-3 text-sm">
             <span className="text-muted-foreground">
-              {list.length} of {CROPS.length} crops match
+              {list.length} of {candidates.length} crops match
             </span>
-            <Button variant="ghost" size="sm" onClick={clearAll} className="font-bold">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAll}
+              className="font-bold"
+            >
               <XIcon /> Clear filters
             </Button>
           </div>
         )}
 
-        {list.length === 0 ? (
+        {ranked.length === 0 ? (
+          <Empty className="mt-6 rounded-3xl border border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <MapPinIcon />
+              </EmptyMedia>
+              <EmptyTitle>
+                {location
+                  ? "Loading live weather analysis"
+                  : "Farm location required"}
+              </EmptyTitle>
+              <EmptyDescription>
+                {location
+                  ? "Crop suitability scores appear after the forecast service returns real data."
+                  : "Set your farm location to compare crop requirements with local weather."}
+              </EmptyDescription>
+            </EmptyHeader>
+            {!location && (
+              <EmptyContent>
+                <Button render={<Link to="/location" />} nativeButton={false}>
+                  Set location
+                </Button>
+              </EmptyContent>
+            )}
+          </Empty>
+        ) : list.length === 0 ? (
           <Empty className="mt-6 rounded-3xl border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">

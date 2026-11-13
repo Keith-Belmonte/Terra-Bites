@@ -6,7 +6,7 @@ type CalendarProps = {
   selected?: DateRange;
   onSelect?: (range: DateRange | undefined) => void;
   defaultMonth?: Date;
-  disabled?: { after?: Date };
+  disabled?: { after?: Date; before?: Date };
   className?: string;
 };
 
@@ -29,6 +29,7 @@ export function Calendar({
   className,
 }: CalendarProps) {
   const max = dateValue(disabled?.after);
+  const min = dateValue(disabled?.before);
   return (
     <div className={cn("grid gap-3 p-3 sm:grid-cols-2", className)}>
       <label className="grid gap-1 text-sm font-semibold">
@@ -36,6 +37,7 @@ export function Calendar({
         <input
           type="date"
           value={dateValue(selected?.from)}
+          min={min}
           max={max}
           onChange={(event) =>
             onSelect?.({
@@ -52,7 +54,7 @@ export function Calendar({
           type="date"
           value={dateValue(selected?.to)}
           max={max}
-          min={dateValue(selected?.from)}
+          min={dateValue(selected?.from) || min}
           onChange={(event) =>
             onSelect?.({
               from: selected?.from,

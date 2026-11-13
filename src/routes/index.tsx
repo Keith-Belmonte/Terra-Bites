@@ -20,7 +20,7 @@ const HERO_IMAGE =
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${site.name} | Smarter farming with NASA data and AI` },
+      { title: `${site.name} | Live farm weather and AI` },
       { name: "description", content: site.tagline },
       { property: "og:title", content: `${site.name} | Smarter farming` },
       { property: "og:description", content: site.tagline },
@@ -34,21 +34,21 @@ type Slide = { icon: LucideIcon; title: string; body: string; stat: string };
 const SLIDES: Slide[] = [
   {
     icon: SatelliteIcon,
-    title: "NASA data, made simple",
-    body: "Soil moisture, rainfall, temperature and plant health from NASA satellites, explained in plain words.",
-    stat: "5 satellite data sets",
+    title: "Real weather, made useful",
+    body: "Explore current forecasts and historical temperature, rainfall, and modelled surface soil-moisture data.",
+    stat: "Open-Meteo live forecast",
   },
   {
     icon: MapPinIcon,
     title: "Advice for your exact field",
-    body: "Your GPS location tells us your climate and soil, so crop picks and alerts fit your farm.",
-    stat: "Updated for your location",
+    body: "Compare local forecast readings with crop reference traits and the soil information you enter.",
+    stat: "GPS or place search",
   },
   {
     icon: BotMessageSquareIcon,
-    title: "Ask Siesta, your AI assistant",
-    body: "Ask anything, like when to plant rice or how to handle a dry spell, and get a clear answer.",
-    stat: "Answers in seconds",
+    title: "Ask Siesta, powered by Cloudflare Workers AI",
+    body: "Get farming guidance grounded in your prompt and current weather context, with important limitations called out.",
+    stat: "Server-side AI",
   },
 ];
 
@@ -79,12 +79,10 @@ function Welcome() {
           </div>
           <div className="absolute bottom-8 left-6 hidden max-w-sm text-white md:block">
             <p className="text-sm font-semibold tracking-widest text-white/80 uppercase">
-              Soil moisture today
+              Your field, your forecast
             </p>
-            <p className="font-serif text-6xl font-semibold">34%</p>
-            <p className="text-white/85">
-              Good for land preparation in Nueva Ecija
-            </p>
+            <p className="font-serif text-3xl font-semibold">Set a location</p>
+            <p className="text-white/85">Start with GPS or search for a place.</p>
           </div>
         </div>
 
@@ -97,11 +95,10 @@ function Welcome() {
             className="font-serif text-[2.6rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"
           >
             Smarter farming with{" "}
-            <span className="text-primary italic">NASA data</span> and AI.
+            <span className="text-primary italic">real weather</span> and AI.
           </motion.h1>
           <p className="pt-4 text-lg text-muted-foreground">
-            Know what to plant, when to plant it, and how to protect it, for
-            your own field.
+            Analyze local forecasts, compare crop requirements, and ask an AI assistant for practical guidance.
           </p>
 
           <section
@@ -183,7 +180,7 @@ function Welcome() {
             </Button>
           </div>
           <p className="pt-4 text-center text-xs text-muted-foreground">
-            Insights use NASA POWER, SMAP, MODIS and GPM public data.
+            Weather by Open-Meteo · AI by Cloudflare Workers AI.
           </p>
         </div>
       </div>

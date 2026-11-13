@@ -9,7 +9,7 @@ type Site = {
 export const site: Site = {
   name: "TerraBites",
   tagline:
-    "Smarter farming with NASA data and AI. Crop recommendations, field conditions, and a farming assistant for your exact location.",
+    "Location-aware farm weather, historical analysis, crop suitability, and an AI-powered farming assistant.",
   nav: [
     { label: "Home", to: "/home" },
     { label: "Insights", to: "/insights" },

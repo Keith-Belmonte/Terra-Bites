@@ -9,15 +9,17 @@ import {
 import { Button } from "@/components/ui/button.tsx";
 import { useFarm } from "@/components/providers/farm-context.tsx";
 import { useRecommendations } from "@/hooks/use-recommendation.ts";
-import { CROPS } from "@/lib/mock/crops.ts";
-import { PRIORITY_KEYS, PRIORITY_META } from "@/lib/recommend.ts";
+import { CROPS } from "@/lib/crops.ts";
+import { DEFAULT_SOIL, PRIORITY_KEYS, PRIORITY_META } from "@/lib/recommend.ts";
 import AdjustSheet from "./adjust-sheet.tsx";
 
 /** Summary of the four inputs behind every crop score. */
 export default function BasisPanel() {
   const { inputs, soilSource } = useRecommendations();
-  const { irrigation } = useFarm();
-  const { soil, climate, priorities } = inputs;
+  const { soilTest, location, priorities: farmerPriorities, irrigation } = useFarm();
+  const soil = inputs?.soil ?? soilTest ?? DEFAULT_SOIL;
+  const climate = inputs?.climate;
+  const priorities = inputs?.priorities ?? farmerPriorities;
   const top = PRIORITY_KEYS.filter((k) => priorities[k] > 0)
     .sort((a, b) => priorities[b] - priorities[a])
     .map((k) => PRIORITY_META[k].label);
@@ -27,13 +29,15 @@ export default function BasisPanel() {
       icon: LayersIcon,
       title: "Local soil",
       value: `${soil.type} · pH ${soil.ph.toFixed(1)}`,
-      note: `${soil.drainage} drainage · ${soil.fertility.toLowerCase()} fertility · ${soilSource === "test" ? "your soil test" : "regional survey"}`,
+      note: `${soil.drainage} drainage · ${soil.fertility.toLowerCase()} fertility · ${soilSource === "test" ? "your soil test" : "general estimate; add a soil test"}`,
     },
     {
       icon: CloudSunIcon,
       title: "Weather & climate",
-      value: `${climate.season} · ${climate.avgTemp} °C`,
-      note: `${climate.rainOutlook30d} mm rain next 30 days · ${irrigation ? "irrigated" : "rain-fed"}`,
+      value: climate ? `${climate.avgTemp.toFixed(1)} °C average` : location ? "Loading live forecast" : "Set a farm location",
+      note: climate
+        ? `${climate.rainOutlook7d.toFixed(1)} mm forecast over 7 days · ${irrigation ? "irrigated" : "rain-fed"}`
+        : "From Open-Meteo forecast data",
     },
     {
       icon: TargetIcon,
@@ -45,7 +49,7 @@ export default function BasisPanel() {
       icon: DnaIcon,
       title: "Crop characteristics",
       value: `${CROPS.length} crops compared`,
-      note: "pH, temperature, water, drought tolerance, cost and market value",
+      note: "Crop traits are compared with your entered soil and local weather data",
     },
   ];
 
@@ -54,7 +58,9 @@ export default function BasisPanel() {
       <div className="flex items-center justify-between gap-3 pb-3">
         <div className="min-w-0">
           <h2 className="font-serif text-lg font-semibold">What your scores are based on</h2>
-          <p className="text-sm text-muted-foreground">Change any input and the list updates.</p>
+          <p className="text-sm text-muted-foreground">
+            Scores are heuristic comparisons, not yield probabilities. Change any input and the list updates.
+          </p>
         </div>
         <AdjustSheet
           trigger={

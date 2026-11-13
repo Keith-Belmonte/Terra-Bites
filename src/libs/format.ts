@@ -1,9 +1,4 @@
-import { LOCATIONS, type FarmLocation } from "@/lib/mock/conditions.ts";
 import type { Units } from "@/components/providers/farm-context.tsx";
-
-export function getLocation(id: string): FarmLocation {
-  return LOCATIONS.find((l) => l.id === id) ?? LOCATIONS[0];
-}
 
 export function formatCoords(lat: number, lng: number): string {
   const ns = lat >= 0 ? "N" : "S";

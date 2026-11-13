@@ -1,12 +1,9 @@
-import type { Crop, Level } from "@/lib/mock/crops.ts";
-import type { SoilType } from "@/lib/mock/crops.ts";
+import type { Crop, Level, SoilType } from "@/lib/crops.ts";
 
 export type ClimateNow = {
-  season: "Wet season" | "Dry season";
   avgTemp: number;
-  rainOutlook30d: number;
-  soilMoisture: number;
-  humidity: number;
+  rainOutlook7d: number;
+  soilMoisture: number | null;
 };
 
 export type Drainage = "Poor" | "Moderate" | "Good";
@@ -16,6 +13,13 @@ export type SoilInfo = {
   ph: number;
   drainage: Drainage;
   fertility: Level;
+};
+
+export const DEFAULT_SOIL: SoilInfo = {
+  type: "Loam",
+  ph: 6.5,
+  drainage: "Moderate",
+  fertility: "Moderate",
 };
 
 export type PriorityWeight = 0 | 1 | 2;
@@ -40,8 +44,8 @@ export const PRIORITY_META: Record<
   keyof Priorities,
   { label: string; hint: string }
 > = {
-  profit: { label: "Higher market value", hint: "Prioritize crops with stronger market value" },
-  lowCost: { label: "Lower input cost", hint: "Prefer crops that need less investment" },
+  profit: { label: "Higher reference value", hint: "Prioritize crops with a higher general value rating; no live prices are used" },
+  lowCost: { label: "Lower reference input cost", hint: "Prefer crops with a lower general input-cost rating" },
   waterSaving: { label: "Save water", hint: "Prefer drought-tolerant, low-water crops" },
   quickHarvest: { label: "Quick harvest", hint: "Prefer crops that mature sooner" },
   lowRisk: { label: "Lower risk", hint: "Prefer crops with fewer weather and pest risks" },
@@ -112,18 +116,11 @@ function scoreClimate(crop: Crop, climate: ClimateNow, irrigation: boolean): num
       : climate.avgTemp > crop.traits.tempMax
         ? Math.max(20, 100 - (climate.avgTemp - crop.traits.tempMax) * 5)
         : 100;
-  const seasonalScore = crop.seasons.includes(climate.season) ? 100 : 55;
-  const rainNeed = crop.water === "High" ? 100 : crop.water === "Medium" ? 65 : 35;
+  const rainNeed = crop.water === "High" ? 35 : crop.water === "Medium" ? 20 : 10;
   const waterScore = irrigation
     ? 90
-    : Math.max(20, 100 - Math.max(0, rainNeed - climate.rainOutlook30d) * 0.6);
-  const moistureScore =
-    climate.soilMoisture >= 30 && climate.soilMoisture <= 45
-      ? 90
-      : climate.soilMoisture < 30
-        ? Math.max(25, 90 - (30 - climate.soilMoisture) * (irrigation ? 1 : 2))
-        : Math.max(35, 90 - (climate.soilMoisture - 45) * 2);
-  return Math.round(average([tempScore, seasonalScore, waterScore, moistureScore]));
+    : Math.max(20, 100 - Math.max(0, rainNeed - climate.rainOutlook7d) * 1.5);
+  return Math.round(average([tempScore, waterScore]));
 }
 
 function scorePriorities(crop: Crop, priorities: Priorities): number {
@@ -165,30 +162,34 @@ function makeReasons(
   if (soil.ph < crop.traits.phMin) {
     reasons.push({
       kind: "warn",
-      text: `Your soil is acidic (pH ${soil.ph.toFixed(1)}); this crop prefers pH ${crop.traits.phMin}–${crop.traits.phMax}.`,
+      text: `The selected soil pH is ${soil.ph.toFixed(1)}; this crop's reference range is pH ${crop.traits.phMin}–${crop.traits.phMax}.`,
     });
   } else if (soil.ph > crop.traits.phMax) {
     reasons.push({
       kind: "warn",
-      text: `Your soil is alkaline (pH ${soil.ph.toFixed(1)}); this crop prefers pH ${crop.traits.phMin}–${crop.traits.phMax}.`,
+      text: `The selected soil pH is ${soil.ph.toFixed(1)}; this crop's reference range is pH ${crop.traits.phMin}–${crop.traits.phMax}.`,
     });
   } else {
-    reasons.push({ kind: "good", text: "Your soil pH is in this crop's preferred range." });
+    reasons.push({ kind: "good", text: "The selected soil pH is within this crop's reference range." });
   }
 
-  if (!irrigation && crop.water === "High" && climate.rainOutlook30d < 80) {
+  if (!irrigation && crop.water === "High" && climate.rainOutlook7d < 35) {
     reasons.push({
       kind: "warn",
-      text: "Rainfall may not meet this crop's water needs without irrigation.",
+      text: "The 7-day forecast may not provide enough water for this crop without irrigation.",
     });
-  } else if (crop.seasons.includes(climate.season)) {
-    reasons.push({ kind: "good", text: `This crop suits the ${climate.season.toLowerCase()}.` });
   } else {
-    reasons.push({ kind: "warn", text: `This crop is less suited to the ${climate.season.toLowerCase()}.` });
+    reasons.push({
+      kind: "info",
+      text: `${climate.rainOutlook7d.toFixed(1)} mm of rain is forecast over the next 7 days.`,
+    });
   }
 
   if (breakdown.soil < 60) {
-    reasons.push({ kind: "info", text: `The local ${soil.type.toLowerCase()} soil is not an ideal match.` });
+    reasons.push({
+      kind: "info",
+      text: `The selected ${soil.type.toLowerCase()} soil class is not an ideal match.`,
+    });
   }
   return reasons;
 }
@@ -223,4 +224,11 @@ export function rankCrops(crops: Crop[], inputs: RecommendInputs): ScoredCrop[] 
   return crops
     .map((crop) => scoreCrop(crop, inputs))
     .sort((a, b) => b.score - a.score || a.crop.name.localeCompare(b.crop.name));
+}
+
+export function selectRegionalCropOptions(
+  ranked: ScoredCrop[],
+  maxOptions = 8,
+): ScoredCrop[] {
+  return ranked.slice(0, maxOptions);
 }

@@ -3,8 +3,6 @@ import { UserButton } from "@clerk/tanstack-react-start";
 import {
   BellIcon,
   ChevronRightIcon,
-  DatabaseIcon,
-  ExternalLinkIcon,
   LanguagesIcon,
   MapPinIcon,
   MonitorIcon,
@@ -27,14 +25,13 @@ import {
 } from "@/components/ui/select.tsx";
 import {
   useFarm,
-  type DataSourcePrefs,
   type Language,
   type NotificationPrefs,
 } from "@/components/providers/farm-context.tsx";
 import { useTheme, type Theme } from "@/components/providers/theme-context.tsx";
 import EditProfileDialog from "./-component/edit-profile-dialogue.tsx";
-import { CROPS } from "@/lib/mock/crops.ts";
-import { formatArea, getLocation } from "@/lib/format.ts";
+import { CROPS } from "@/lib/crops.ts";
+import { formatArea } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_app/profile")({
@@ -48,17 +45,26 @@ const LANGUAGES: Record<Language, string> = {
   ceb: "Cebuano",
 };
 
-const NOTIFICATION_ITEMS: Array<{ key: keyof NotificationPrefs; label: string; hint: string }> = [
-  { key: "alerts", label: "Farm alerts", hint: "Drought, pests and storms near you" },
-  { key: "weather", label: "Daily weather summary", hint: "Every morning at 6 AM" },
-  { key: "tips", label: "Planting tips", hint: "When a good planting window opens" },
-];
-
-const DATA_SOURCES: Array<{ key: keyof DataSourcePrefs; name: string; what: string }> = [
-  { key: "power", name: "NASA POWER", what: "Temperature, sunlight, humidity" },
-  { key: "smap", name: "NASA SMAP", what: "Soil moisture from satellite" },
-  { key: "modis", name: "NASA MODIS", what: "Vegetation health (NDVI)" },
-  { key: "gpm", name: "NASA GPM IMERG", what: "Rainfall estimates" },
+const NOTIFICATION_ITEMS: Array<{
+  key: keyof NotificationPrefs;
+  label: string;
+  hint: string;
+}> = [
+  {
+    key: "alerts",
+    label: "Forecast signals",
+    hint: "Saved preference only; no alert delivery is configured",
+  },
+  {
+    key: "weather",
+    label: "Weather summary",
+    hint: "Saved preference only; no scheduled summary is configured",
+  },
+  {
+    key: "tips",
+    label: "Crop tips",
+    hint: "Saved preference only; no scheduled tips are configured",
+  },
 ];
 
 const THEMES: Array<{ value: Theme; label: string; icon: LucideIcon }> = [
@@ -70,14 +76,17 @@ const THEMES: Array<{ value: Theme; label: string; icon: LucideIcon }> = [
 function Profile() {
   const farm = useFarm();
   const { theme, setTheme } = useTheme();
-  const loc = getLocation(farm.locationId);
-  const initials = farm.profile.name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-  const preferred = CROPS.filter((c) => farm.profile.preferredCrops.includes(c.id));
+  const loc = farm.location;
+  const initials =
+    farm.profile.name
+      .split(" ")
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "F";
+  const preferred = CROPS.filter((c) =>
+    farm.profile.preferredCrops.includes(c.id),
+  );
 
   return (
     <>
@@ -94,9 +103,11 @@ function Profile() {
               {initials}
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="truncate text-xl font-extrabold">{farm.profile.name}</h2>
+              <h2 className="truncate text-xl font-extrabold">
+                {farm.profile.name || "Your profile"}
+              </h2>
               <p className="truncate text-sm text-muted-foreground">
-                {farm.profile.farmName}
+                {farm.profile.farmName || "Add your farm details"}
               </p>
             </div>
             <EditProfileDialog />
@@ -104,16 +115,24 @@ function Profile() {
           <div className="grid grid-cols-2 gap-3 pt-5">
             <div className="rounded-2xl bg-muted p-3">
               <TractorIcon className="size-5 text-primary" />
-              <p className="pt-1 text-xs font-semibold text-muted-foreground">Farm size</p>
-              <p className="font-bold">{formatArea(farm.profile.farmSize, farm.units)}</p>
+              <p className="pt-1 text-xs font-semibold text-muted-foreground">
+                Farm size
+              </p>
+              <p className="font-bold">
+                {farm.profile.farmSize > 0
+                  ? formatArea(farm.profile.farmSize, farm.units)
+                  : "Not set"}
+              </p>
             </div>
             <Link
               to="/location"
               className="cursor-pointer rounded-2xl bg-muted p-3 transition-colors hover:bg-secondary"
             >
               <MapPinIcon className="size-5 text-primary" />
-              <p className="pt-1 text-xs font-semibold text-muted-foreground">Location</p>
-              <p className="truncate font-bold">{loc.city}</p>
+              <p className="pt-1 text-xs font-semibold text-muted-foreground">
+                Location
+              </p>
+              <p className="truncate font-bold">{loc?.city ?? "Not set"}</p>
             </Link>
           </div>
           <p className="pt-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
@@ -175,6 +194,10 @@ function Profile() {
         </SettingsGroup>
 
         <SettingsGroup title="Notifications" icon={BellIcon}>
+          <p className="px-4 pt-3 text-xs text-muted-foreground">
+            These preferences are saved locally. Scheduled notifications are not
+            configured.
+          </p>
           {NOTIFICATION_ITEMS.map((n) => (
             <label
               key={n.key}
@@ -182,12 +205,17 @@ function Profile() {
             >
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold">{n.label}</span>
-                <span className="block text-sm text-muted-foreground">{n.hint}</span>
+                <span className="block text-sm text-muted-foreground">
+                  {n.hint}
+                </span>
               </span>
               <Switch
                 checked={farm.notifications[n.key]}
                 onCheckedChange={(checked) =>
-                  farm.setNotifications({ ...farm.notifications, [n.key]: checked })
+                  farm.setNotifications({
+                    ...farm.notifications,
+                    [n.key]: checked,
+                  })
                 }
                 className="scale-125"
               />
@@ -195,26 +223,43 @@ function Profile() {
           ))}
         </SettingsGroup>
 
-        <SettingsGroup title="Data sources" icon={DatabaseIcon}>
-          {DATA_SOURCES.map((d) => (
-            <label
-              key={d.key}
-              className="flex min-h-16 cursor-pointer items-center gap-3 px-4 py-3"
-            >
-              <SatelliteIcon className="size-5 shrink-0 text-primary" />
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold">{d.name}</span>
-                <span className="block text-sm text-muted-foreground">{d.what}</span>
-              </span>
-              <Switch
-                checked={farm.dataSources[d.key]}
-                onCheckedChange={(checked) =>
-                  farm.setDataSources({ ...farm.dataSources, [d.key]: checked })
-                }
-                className="scale-125"
-              />
-            </label>
-          ))}
+        <SettingsGroup title="Connected services" icon={SatelliteIcon}>
+          <div className="px-4 py-3">
+            <p className="font-semibold">Open-Meteo</p>
+            <p className="text-sm text-muted-foreground">
+              Live forecast, historical weather, and modelled surface soil
+              moisture.
+            </p>
+          </div>
+          <div className="px-4 py-3">
+            <p className="font-semibold">NASA POWER</p>
+            <p className="text-sm text-muted-foreground">
+              Recent gridded temperature, precipitation, and solar estimates; no
+              NASA account or API key is required.
+            </p>
+          </div>
+          <div className="px-4 py-3">
+            <p className="font-semibold">NASA GEOS-CF</p>
+            <p className="text-sm text-muted-foreground">
+              Five-day gridded temperature and rainfall outlook from NASA&apos;s
+              global forecast model.
+            </p>
+          </div>
+          <div className="px-4 py-3">
+            <p className="font-semibold">NASA GIBS / EOSDIS</p>
+            <p className="text-sm text-muted-foreground">
+              Optional VIIRS vegetation-index and SMAP surface-soil-moisture
+              imagery on the farm map. These are broad-scale visual context, not
+              field measurements.
+            </p>
+          </div>
+          <div className="px-4 py-3">
+            <p className="font-semibold">Cloudflare Workers AI</p>
+            <p className="text-sm text-muted-foreground">
+              Server-side AI assistant. Uses the Cloudflare AI binding; no
+              separate AI key is required.
+            </p>
+          </div>
         </SettingsGroup>
 
         {/* Attribution */}
@@ -224,23 +269,21 @@ function Profile() {
             Where our insights come from
           </h2>
           <p className="pt-2 leading-relaxed">
-            TerraBites insights are based on NASA Earth observation data (POWER,
-            SMAP, MODIS and GPM) and other public environmental data, such as
-            national soil surveys and weather services. Satellite readings cover
-            areas of hundreds of metres, so always compare them with what you see
-            in your own field.
+            Weather insights and forecast signals use Open-Meteo data. NASA
+            GEOS-CF adds a five-day model outlook; NASA POWER adds recent
+            gridded temperature, precipitation, and solar estimates. These are
+            regional estimates, not measurements from a sensor on your farm.
+            NASA GIBS VIIRS and SMAP imagery is visual context only, not a
+            field-level crop-health measurement or soil test. Crop details are
+            global reference traits; regional crop picks rank growing-condition
+            fit and do not confirm local seed availability. Soil suitability
+            uses your entered soil test or a clearly labelled general estimate.
           </p>
           <p className="pt-2 text-sm text-muted-foreground">
-            This version shows sample data while live connections are being set up.
+            AI advice is generated by Cloudflare Workers AI from the prompt and
+            current weather and NASA POWER context when available. Verify
+            critical decisions with a local agricultural extension officer.
           </p>
-          <a
-            href="https://power.larc.nasa.gov/"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex cursor-pointer items-center gap-1.5 pt-3 text-sm font-bold text-primary hover:underline"
-          >
-            Learn about NASA POWER <ExternalLinkIcon className="size-4" />
-          </a>
         </section>
 
         <Link
