@@ -16,6 +16,7 @@ import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppLocationRouteImport } from './routes/_app/location'
+import { Route as AppMapsRouteImport } from './routes/_app/maps'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
@@ -56,6 +57,11 @@ const AppLocationRoute = AppLocationRouteImport.update({
   path: '/location',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMapsRoute = AppMapsRouteImport.update({
+  id: '/maps',
+  path: '/maps',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
+  '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
+  '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/_app/home': typeof AppHomeRoute
   '/_app/insights': typeof AppInsightsRoute
   '/_app/location': typeof AppLocationRoute
+  '/_app/maps': typeof AppMapsRoute
   '/_app/profile': typeof AppProfileRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/insights'
     | '/location'
+    | '/maps'
     | '/profile'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/insights'
     | '/location'
+    | '/maps'
     | '/profile'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/_app/home'
     | '/_app/insights'
     | '/_app/location'
+    | '/_app/maps'
     | '/_app/profile'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -224,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLocationRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/maps': {
+      id: '/_app/maps'
+      path: '/maps'
+      fullPath: '/maps'
+      preLoaderRoute: typeof AppMapsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/profile': {
       id: '/_app/profile'
       path: '/profile'
@@ -268,6 +287,7 @@ interface AppRouteChildren {
   AppHomeRoute: typeof AppHomeRoute
   AppInsightsRoute: typeof AppInsightsRoute
   AppLocationRoute: typeof AppLocationRoute
+  AppMapsRoute: typeof AppMapsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppCropsCropIdRoute: typeof AppCropsCropIdRoute
   AppCropsIndexRoute: typeof AppCropsIndexRoute
@@ -279,6 +299,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHomeRoute: AppHomeRoute,
   AppInsightsRoute: AppInsightsRoute,
   AppLocationRoute: AppLocationRoute,
+  AppMapsRoute: AppMapsRoute,
   AppProfileRoute: AppProfileRoute,
   AppCropsCropIdRoute: AppCropsCropIdRoute,
   AppCropsIndexRoute: AppCropsIndexRoute,

@@ -36,15 +36,26 @@ export type FarmLocation = {
 export const LOCATIONS: FarmLocation[] = [
   {
     id: "Nasisi",
-    city: "Ligoa City",
+    city: "Ligao City",
     province: "Albay",
-    region: "Southern Luzon",
+    region: "Bicol Region",
     country: "Philippines",
-    lat: 15.4865,
-    lng: 120.9667,
+    lat: 13.2402789,
+    lng: 123.5365227,
     elevation: "32 m",
-    soil: { type: "Clay loam", ph: 6.2, drainage: "Poor", fertility: "Moderate" },
-    climate: { season: "Dry season", avgTemp: 29, rainOutlook30d: 42, soilMoisture: 34, humidity: 78 },
+    soil: {
+      type: "Clay loam",
+      ph: 6.2,
+      drainage: "Poor",
+      fertility: "Moderate",
+    },
+    climate: {
+      season: "Dry season",
+      avgTemp: 29,
+      rainOutlook30d: 42,
+      soilMoisture: 34,
+      humidity: 78,
+    },
     profile: {
       climate: "Tropical, distinct wet and dry seasons",
       soil: "Clay loam (Maligaya series)",
@@ -59,13 +70,19 @@ export const LOCATIONS: FarmLocation[] = [
     id: "San Isidro",
     city: "Cabusao",
     province: "Camarines Sur",
-    region: "Southern Luzon",
+    region: "Bicol Region",
     country: "Philippines",
-    lat: 8.1575,
-    lng: 125.1278,
+    lat: 13.7260501,
+    lng: 123.1138377,
     elevation: "622 m",
     soil: { type: "Loam", ph: 5.4, drainage: "Good", fertility: "High" },
-    climate: { season: "Wet season", avgTemp: 23, rainOutlook30d: 165, soilMoisture: 41, humidity: 84 },
+    climate: {
+      season: "Wet season",
+      avgTemp: 23,
+      rainOutlook30d: 165,
+      soilMoisture: 41,
+      humidity: 84,
+    },
     profile: {
       climate: "Cool highland, rain spread through the year",
       soil: "Loam (Adtuyon series)",
@@ -80,13 +97,24 @@ export const LOCATIONS: FarmLocation[] = [
     id: "EMS Barrio",
     city: "Legazpi City",
     province: "Albay",
-    region: "Souethern Luzon",
+    region: "Bicol Region",
     country: "Philippines",
-    lat: 10.9436,
-    lng: 122.6347,
+    lat: 13.1388505,
+    lng: 123.7345746,
     elevation: "18 m",
-    soil: { type: "Silt loam", ph: 6.6, drainage: "Moderate", fertility: "Moderate" },
-    climate: { season: "Dry season", avgTemp: 30, rainOutlook30d: 68, soilMoisture: 29, humidity: 76 },
+    soil: {
+      type: "Silt loam",
+      ph: 6.6,
+      drainage: "Moderate",
+      fertility: "Moderate",
+    },
+    climate: {
+      season: "Dry season",
+      avgTemp: 30,
+      rainOutlook30d: 68,
+      soilMoisture: 29,
+      humidity: 76,
+    },
     profile: {
       climate: "Tropical, short dry season",
       soil: "Silt loam",
@@ -99,7 +127,7 @@ export const LOCATIONS: FarmLocation[] = [
   },
 ];
 
-export type ConditionStatus = "good" | "watch" | "alert";
+export type ConditionStatus = "good" | "watch" | "alert" | "info";
 
 export type Condition = {
   key: string;

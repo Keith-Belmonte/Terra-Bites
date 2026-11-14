@@ -67,11 +67,11 @@ export default function AdjustSheet({
           <Group icon={LayersIcon} title="Local soil information">
             <p className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
               <span>
-                {soilSource === "test"
-                  ? "Using your soil test"
+                {soilSource === "entered"
+                  ? "Using your entered soil information"
                   : `From the ${loc.province} soil survey`}
               </span>
-              {soilSource === "test" && (
+              {soilSource === "entered" && (
                 <Button
                   variant="ghost"
                   size="sm"

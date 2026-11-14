@@ -17,6 +17,7 @@ export type ObservationMetric =
   | "rainfallOutlook30d"
   | "relativeHumidity"
   | "soilMoisture"
+  | "surfaceWetness"
   | "ndvi";
 
 export type ObservationSource =
@@ -100,6 +101,7 @@ export function adaptPowerDailyResponse(
   const temperature = mean(numericValues(parameters.T2M));
   const rainfallValues = numericValues(parameters.PRECTOTCORR);
   const humidity = mean(numericValues(parameters.RH2M));
+  const surfaceWetness = mean(numericValues(parameters.GWETTOP));
   const observations: NormalizedObservation[] = [];
 
   if (temperature !== null) {
@@ -139,6 +141,19 @@ export function adaptPowerDailyResponse(
         "relativeHumidity",
         Number(humidity.toFixed(1)),
         "%",
+        "NASA POWER",
+        "observed",
+        observedAt,
+      ),
+    );
+  }
+  if (surfaceWetness !== null) {
+    assertRange("NASA POWER surface soil wetness", surfaceWetness, 0, 1);
+    observations.push(
+      makeObservation(
+        "surfaceWetness",
+        Number(surfaceWetness.toFixed(3)),
+        "index",
         "NASA POWER",
         "observed",
         observedAt,
@@ -288,6 +303,7 @@ export function adaptObservationsToConditions(
     observationFor(observations, "rainfallOutlook30d") ??
     observationFor(observations, "rainfall");
   const soilMoisture = observationFor(observations, "soilMoisture");
+  const surfaceWetness = observationFor(observations, "surfaceWetness");
   const humidity = observationFor(observations, "relativeHumidity");
   const ndvi = observationFor(observations, "ndvi");
 
@@ -338,6 +354,17 @@ export function adaptObservationsToConditions(
           : soilMoisture.value < 30
             ? "watch"
             : "good",
+      icon: WavesIcon,
+    });
+  }
+  if (surfaceWetness) {
+    conditions.push({
+      key: "surfaceWetness",
+      label: "Topsoil wetness index",
+      value: surfaceWetness.value.toFixed(2),
+      unit: surfaceWetness.unit,
+      detail: qualityDetail(surfaceWetness, "Modeled surface soil wetness"),
+      status: "info",
       icon: WavesIcon,
     });
   }

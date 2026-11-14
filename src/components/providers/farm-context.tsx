@@ -59,7 +59,7 @@ export type FarmState = {
   setDataSources: (prefs: DataSourcePrefs) => void;
   profile: FarmProfile;
   setProfile: (profile: FarmProfile) => void;
-  /** Farmer-entered soil test; null means use the regional soil survey. */
+  /** Farmer-entered soil information; null means use the regional soil survey. */
   soilTest: SoilInfo | null;
   setSoilTest: (soil: SoilInfo | null) => void;
   priorities: Priorities;

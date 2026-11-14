@@ -55,6 +55,32 @@ describe("provider observation adapters", () => {
     ]);
   });
 
+  test("normalizes NASA POWER modeled surface soil wetness as an index", () => {
+    const observations = adaptPowerDailyResponse(
+      { properties: { parameter: { GWETTOP: { "20261104": 0.73 } } } },
+      OBSERVED_AT,
+    );
+
+    expect(observations).toMatchObject([
+      {
+        metric: "surfaceWetness",
+        value: 0.73,
+        unit: "index",
+        source: "NASA POWER",
+        quality: "observed",
+        observedAt: OBSERVED_AT,
+      },
+    ]);
+    expect(adaptObservationsToConditions(observations)).toMatchObject([
+      {
+        label: "Topsoil wetness index",
+        value: "0.73",
+        unit: "index",
+        status: "info",
+      },
+    ]);
+  });
+
   test("rejects malformed or empty NASA POWER payloads instead of inventing defaults", () => {
     expect(() => adaptPowerDailyResponse({}, OBSERVED_AT)).toThrow(
       "NASA POWER response is missing properties.parameter",

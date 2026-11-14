@@ -15,6 +15,7 @@ import {
   buildAgronomyInsight,
 } from "@/lib/agronomy-data.ts";
 import { useRecommendations } from "@/hooks/use-recommendation.ts";
+import { useNasaPowerObservations } from "@/hooks/use-nasa-power.ts";
 import {
   formatCoords,
   formatRain,
@@ -34,6 +35,7 @@ const STATUS_DOT: Record<Condition["status"], string> = {
   good: "bg-primary",
   watch: "bg-chart-4",
   alert: "bg-destructive",
+  info: "bg-muted-foreground",
 };
 
 function displayValue(c: Condition, units: Units) {
@@ -43,9 +45,16 @@ function displayValue(c: Condition, units: Units) {
 }
 
 function Home() {
-  const { locationId, units, deviceLocation } = useFarm();
+  const { locationId, units, deviceLocation, dataSources } = useFarm();
   const { user } = useUser();
   const loc = getLocation(locationId);
+  const latitude = deviceLocation?.latitude ?? loc.lat;
+  const longitude = deviceLocation?.longitude ?? loc.lng;
+  const nasaPower = useNasaPowerObservations(
+    latitude,
+    longitude,
+    dataSources.power,
+  );
   const firstName =
     user?.firstName || user?.fullName?.split(" ")[0] || "farmer";
   const locationName = deviceLocation
@@ -54,8 +63,14 @@ function Home() {
         .join(", ") ||
       `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
     : `${loc.city}, ${loc.province}`;
+  const regionName = deviceLocation
+    ? [deviceLocation.region, deviceLocation.country]
+        .filter(Boolean)
+        .join(" · ") || "GPS location"
+    : loc.region;
   const top = useRecommendations().ranked.slice(0, 4);
-  const observations = adaptRegionalSample(loc);
+  const sampleObservations = adaptRegionalSample(loc);
+  const observations = nasaPower.data ?? sampleObservations;
   const conditions = adaptObservationsToConditions(observations);
   const alerts = adaptObservationsToAlerts(observations);
   const insight = buildAgronomyInsight(
@@ -67,6 +82,13 @@ function Home() {
   );
   const [hero, ...rest] = conditions;
   const heroValue = displayValue(hero, units);
+  const nasaDataThrough =
+    nasaPower.data?.find((observation) => observation.observedAt)?.observedAt ??
+    null;
+  const nasaError =
+    nasaPower.error instanceof Error
+      ? nasaPower.error.message
+      : "Unknown NASA POWER error";
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -108,7 +130,7 @@ function Home() {
             </p>
           )}
           <p className="pt-1.5 pl-1 font-mono text-xs text-primary-foreground/70">
-            {loc.region} · {formatCoords(loc.lat, loc.lng)}
+            {regionName} · {formatCoords(latitude, longitude)}
           </p>
           <div className="flex items-end gap-3 pt-5">
             <span className="font-serif text-7xl leading-none font-semibold">
@@ -163,10 +185,37 @@ function Home() {
             );
           })}
         </div>
-        <p className="flex items-center gap-1.5 pt-3 text-xs text-muted-foreground">
-          <RadarIcon className="size-3.5" />
-          Regional sample observations · illustrative, not live satellite data
-        </p>
+        {nasaPower.data ? (
+          <p className="flex items-center gap-1.5 pt-3 text-xs text-muted-foreground">
+            <RadarIcon className="size-3.5" />
+            NASA POWER daily gridded data through{" "}
+            {nasaDataThrough?.slice(0, 10)}
+            {" · "}
+            topsoil wetness is a modeled index, not a field measurement.{" "}
+            <a
+              href="https://power.larc.nasa.gov/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Source
+            </a>
+          </p>
+        ) : (
+          <p
+            role={nasaPower.isError ? "alert" : "status"}
+            className="flex items-center gap-1.5 pt-3 text-xs text-muted-foreground"
+          >
+            <RadarIcon className="size-3.5 shrink-0" />
+            {!dataSources.power
+              ? "NASA POWER is disabled in Profile settings; showing a regional sample."
+              : nasaPower.isError
+                ? `NASA POWER unavailable (${nasaError}); showing a regional sample.`
+                : nasaPower.isPending
+                  ? "Loading NASA POWER data; showing a regional sample temporarily."
+                  : "Regional sample observations · illustrative, not live satellite data."}
+          </p>
+        )}
       </section>
 
       {/* Alerts */}

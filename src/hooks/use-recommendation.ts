@@ -9,7 +9,7 @@ export function useRecommendations(): {
   ranked: ScoredCrop[];
   byId: Map<string, ScoredCrop>;
   inputs: RecommendInputs;
-  soilSource: "test" | "survey";
+  soilSource: "entered" | "survey";
 } {
   const { locationId, soilTest, priorities, irrigation } = useFarm();
   return useMemo(() => {
@@ -25,7 +25,7 @@ export function useRecommendations(): {
       ranked,
       byId: new Map(ranked.map((r) => [r.crop.id, r])),
       inputs,
-      soilSource: soilTest ? "test" : "survey",
+      soilSource: soilTest ? "entered" : "survey",
     };
   }, [locationId, soilTest, priorities, irrigation]);
 }

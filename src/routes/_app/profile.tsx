@@ -1,8 +1,11 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { UserButton, useUser } from "@clerk/tanstack-react-start";
+import { useSyncExternalStore } from "react";
 import {
   BellIcon,
+  CalendarDaysIcon,
   ChevronRightIcon,
+  CloudRainIcon,
   DatabaseIcon,
   ExternalLinkIcon,
   LanguagesIcon,
@@ -17,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import ScreenHeader from "@/components/ui/screen-header.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import {
   Select,
@@ -31,11 +35,18 @@ import {
   type Language,
   type NotificationPrefs,
 } from "@/components/providers/farm-context.tsx";
+import {
+  getForecastLeadDays,
+  saveForecastLeadDays,
+  subscribeToForecastLeadDays,
+} from "@/lib/forecast-preferences.ts";
 import { useTheme, type Theme } from "@/components/providers/theme-context.tsx";
 import EditProfileDialog from "./-component/edit-profile-dialogue.tsx";
+import FarmReminders from "./-component/farm-reminders.tsx";
 import { CROPS } from "@/lib/mock/crops.ts";
 import { formatArea, getLocation } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({ meta: [{ title: "Profile & Settings | TerraBites" }] }),
@@ -48,13 +59,33 @@ const LANGUAGES: Record<Language, string> = {
   ceb: "Cebuano",
 };
 
-const NOTIFICATION_ITEMS: Array<{ key: keyof NotificationPrefs; label: string; hint: string }> = [
-  { key: "alerts", label: "Farm alerts", hint: "Drought, pests and storms near you" },
-  { key: "weather", label: "Daily weather summary", hint: "Every morning at 6 AM" },
-  { key: "tips", label: "Planting tips", hint: "When a good planting window opens" },
+const NOTIFICATION_ITEMS: Array<{
+  key: keyof NotificationPrefs;
+  label: string;
+  hint: string;
+}> = [
+  {
+    key: "alerts",
+    label: "Farm alerts",
+    hint: "Drought, pests and storms near you",
+  },
+  {
+    key: "weather",
+    label: "Daily weather summary",
+    hint: "Every morning at 6 AM",
+  },
+  {
+    key: "tips",
+    label: "Planting tips",
+    hint: "When a good planting window opens",
+  },
 ];
 
-const DATA_SOURCES: Array<{ key: keyof DataSourcePrefs; name: string; what: string }> = [
+const DATA_SOURCES: Array<{
+  key: keyof DataSourcePrefs;
+  name: string;
+  what: string;
+}> = [
   { key: "power", name: "NASA POWER", what: "Temperature, sunlight, humidity" },
   { key: "smap", name: "NASA SMAP", what: "Soil moisture from satellite" },
   { key: "modis", name: "NASA MODIS", what: "Vegetation health (NDVI)" },
@@ -67,13 +98,39 @@ const THEMES: Array<{ value: Theme; label: string; icon: LucideIcon }> = [
   { value: "system", label: "Auto", icon: MonitorIcon },
 ];
 
+function getNotificationPermission(): NotificationPermission | "unsupported" {
+  return "Notification" in window ? Notification.permission : "unsupported";
+}
+
+function subscribeToNotificationPermission(onChange: () => void) {
+  window.addEventListener("focus", onChange);
+  window.addEventListener("terrabites-notification-permission", onChange);
+  return () => {
+    window.removeEventListener("focus", onChange);
+    window.removeEventListener("terrabites-notification-permission", onChange);
+  };
+}
+
 function Profile() {
   const farm = useFarm();
   const { isLoaded, user } = useUser();
   const { theme, setTheme } = useTheme();
+  const forecastLeadDays = useSyncExternalStore(
+    subscribeToForecastLeadDays,
+    getForecastLeadDays,
+    () => "3",
+  );
+  const notificationPermission = useSyncExternalStore(
+    subscribeToNotificationPermission,
+    getNotificationPermission,
+    () => "default",
+  );
   const loc = getLocation(farm.locationId);
   const locationName = farm.deviceLocation
-    ? [farm.deviceLocation.city, farm.deviceLocation.region ?? farm.deviceLocation.country]
+    ? [
+        farm.deviceLocation.city,
+        farm.deviceLocation.region ?? farm.deviceLocation.country,
+      ]
         .filter(Boolean)
         .join(", ") ||
       `${farm.deviceLocation.latitude.toFixed(4)}, ${farm.deviceLocation.longitude.toFixed(4)}`
@@ -89,7 +146,23 @@ function Profile() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const preferred = CROPS.filter((c) => farm.profile.preferredCrops.includes(c.id));
+  const preferred = CROPS.filter((c) =>
+    farm.profile.preferredCrops.includes(c.id),
+  );
+
+  async function enableBrowserNotifications() {
+    if (!("Notification" in window)) {
+      return;
+    }
+    try {
+      await Notification.requestPermission();
+      window.dispatchEvent(new Event("terrabites-notification-permission"));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown browser error";
+      toast.error(`Could not request notification permission: ${message}`);
+    }
+  }
 
   return (
     <>
@@ -126,15 +199,21 @@ function Profile() {
           <div className="grid grid-cols-2 gap-3 pt-5">
             <div className="rounded-2xl bg-muted p-3">
               <TractorIcon className="size-5 text-primary" />
-              <p className="pt-1 text-xs font-semibold text-muted-foreground">Farm size</p>
-              <p className="font-bold">{formatArea(farm.profile.farmSize, farm.units)}</p>
+              <p className="pt-1 text-xs font-semibold text-muted-foreground">
+                Farm size
+              </p>
+              <p className="font-bold">
+                {formatArea(farm.profile.farmSize, farm.units)}
+              </p>
             </div>
             <Link
               to="/location"
               className="cursor-pointer rounded-2xl bg-muted p-3 transition-colors hover:bg-secondary"
             >
               <MapPinIcon className="size-5 text-primary" />
-              <p className="pt-1 text-xs font-semibold text-muted-foreground">Location</p>
+              <p className="pt-1 text-xs font-semibold text-muted-foreground">
+                Location
+              </p>
               <p className="truncate font-bold">{locationName}</p>
             </Link>
           </div>
@@ -204,17 +283,92 @@ function Profile() {
             >
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold">{n.label}</span>
-                <span className="block text-sm text-muted-foreground">{n.hint}</span>
+                <span className="block text-sm text-muted-foreground">
+                  {n.hint}
+                </span>
               </span>
               <Switch
                 checked={farm.notifications[n.key]}
                 onCheckedChange={(checked) =>
-                  farm.setNotifications({ ...farm.notifications, [n.key]: checked })
+                  farm.setNotifications({
+                    ...farm.notifications,
+                    [n.key]: checked,
+                  })
                 }
                 className="scale-125"
               />
             </label>
           ))}
+        </SettingsGroup>
+
+        <SettingsGroup
+          title="Advanced forecast & reminders"
+          icon={CloudRainIcon}
+        >
+          <Row icon={CalendarDaysIcon} label="Forecast lead time">
+            <Select
+              items={{
+                "1": "1 day ahead",
+                "3": "3 days ahead",
+                "7": "7 days ahead",
+              }}
+              value={forecastLeadDays}
+              onValueChange={(value) => {
+                if (value === "1" || value === "3" || value === "7") {
+                  try {
+                    saveForecastLeadDays(value);
+                  } catch (error) {
+                    const message =
+                      error instanceof Error
+                        ? error.message
+                        : "Unknown browser error";
+                    toast.error(
+                      `Could not save forecast preference: ${message}`,
+                    );
+                  }
+                }
+              }}
+            >
+              <SelectTrigger className="h-11 min-w-36 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 day ahead</SelectItem>
+                <SelectItem value="3">3 days ahead</SelectItem>
+                <SelectItem value="7">7 days ahead</SelectItem>
+              </SelectContent>
+            </Select>
+          </Row>
+          <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center">
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Browser notifications</p>
+              <p className="text-sm text-muted-foreground">
+                {notificationPermission === "granted"
+                  ? "Permission granted. Automatic background push delivery is not set up yet."
+                  : notificationPermission === "denied"
+                    ? "Notifications are blocked in your browser settings."
+                    : notificationPermission === "unsupported"
+                      ? "This browser does not support notifications."
+                      : "Allow browser permission for future weather and farm alerts."}
+              </p>
+            </div>
+            {notificationPermission !== "granted" &&
+              notificationPermission !== "unsupported" && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={enableBrowserNotifications}
+                >
+                  Allow notifications
+                </Button>
+              )}
+          </div>
+          <p className="px-4 pb-4 text-xs text-muted-foreground">
+            Forecast lead time controls the forecast shown on Farm Maps.
+            Automatic background push reminders require a push service and are
+            not active in this version.
+          </p>
+          <FarmReminders />
         </SettingsGroup>
 
         <SettingsGroup title="Data sources" icon={DatabaseIcon}>
@@ -226,7 +380,9 @@ function Profile() {
               <SatelliteIcon className="size-5 shrink-0 text-primary" />
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold">{d.name}</span>
-                <span className="block text-sm text-muted-foreground">{d.what}</span>
+                <span className="block text-sm text-muted-foreground">
+                  {d.what}
+                </span>
               </span>
               <Switch
                 checked={farm.dataSources[d.key]}
@@ -249,11 +405,12 @@ function Profile() {
             TerraBites insights are based on NASA Earth observation data (POWER,
             SMAP, MODIS and GPM) and other public environmental data, such as
             national soil surveys and weather services. Satellite readings cover
-            areas of hundreds of metres, so always compare them with what you see
-            in your own field.
+            areas of hundreds of metres, so always compare them with what you
+            see in your own field.
           </p>
           <p className="pt-2 text-sm text-muted-foreground">
-            This version shows sample data while live connections are being set up.
+            This version shows sample data while live connections are being set
+            up.
           </p>
           <a
             href="https://power.larc.nasa.gov/"

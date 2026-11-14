@@ -29,10 +29,10 @@ interface SlideType {
 const SLIDES: SlideType[] = [
   {
     icon: () => <span>🌱</span>,
-    title: "TerraBites",
-    subtitle: "Precision Agronomy System",
+    title: "One app for the whole farm cycle",
+    subtitle: "Plan, grow, and manage your season",
     description:
-      "Real-time crop tracking and satellite soil analysis optimized for high-yield food security thresholds.",
+      "Check local weather and historical climate, compare crop suitability, plan crop rotations and soil care, explore nearby suppliers, and set farm reminders. Soil photos are a manual texture guide, not an automatic diagnosis.",
   },
 ];
 
@@ -400,8 +400,10 @@ export function Welcome() {
                     </span>
                   </h1>
                   <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">
-                    Explore field conditions, crop suitability, and practical
-                    guidance for your growing season.
+                    From choosing a crop and planning rotations to checking
+                    local weather, finding nearby fertilizer suppliers, and
+                    keeping farm tasks on track, TerraBites brings practical
+                    tools for your season together.
                   </p>
                 </div>
                 <SignInButton mode="redirect" forceRedirectUrl="/home">
