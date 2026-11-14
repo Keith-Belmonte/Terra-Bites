@@ -3,28 +3,39 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useUser } from "@clerk/tanstack-react-start";
 import { motion } from "motion/react";
 import { format } from "date-fns";
-import { MapPinIcon, RotateCcwIcon, SendHorizontalIcon, SproutIcon } from "lucide-react";
+import {
+  MapPinIcon,
+  RotateCcwIcon,
+  SendHorizontalIcon,
+  SproutIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import Logo from "@/components/ui/logo.tsx";
-import { useFarm, type ChatMessage } from "@/components/providers/farm-context.tsx";
-import { SUGGESTED_PROMPTS, getMockReply } from "@/lib/mock/assistant.ts";
-import { getLocation } from "@/lib/format.ts";
+import {
+  useFarm,
+  type ChatMessage,
+} from "@/components/providers/farm-context.tsx";
+import { SUGGESTED_PROMPTS } from "@/lib/assistant-prompts.ts";
+import { askFarmAssistant } from "@/lib/farm-api.ts";
+import { useFarmWeather } from "@/hooks/use-farm-weather.ts";
+import { useNasaPower } from "@/hooks/use-nasa-power.ts";
 import { cn } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_app/assistant")({
-  head: () => ({ meta: [{ title: "Siesta, AI Farming Assistant | TerraBites" }] }),
+  head: () => ({
+    meta: [{ title: "Siesta, AI Farming Assistant | TerraBites" }],
+  }),
   component: Assistant,
 });
-
-// Simulated "thinking" time for sample replies.
-const REPLY_DELAY_MS = 1600;
 
 function newId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function Assistant() {
+<<<<<<< HEAD
   const { messages, setMessages, locationId, deviceLocation } = useFarm();
   const { user } = useUser();
   const loc = getLocation(locationId);
@@ -35,6 +46,11 @@ function Assistant() {
     : deviceLocation
       ? `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
       : loc.city;
+=======
+  const { messages, setMessages, location, profile } = useFarm();
+  const weather = useFarmWeather();
+  const nasaPower = useNasaPower();
+>>>>>>> main
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -44,7 +60,7 @@ function Assistant() {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, typing]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || typing) return;
     const userMsg: ChatMessage = {
@@ -56,21 +72,56 @@ function Assistant() {
     setMessages((prev) => [...prev, userMsg]);
     setDraft("");
     setTyping(true);
-    setTimeout(() => {
+    try {
+      const response = await askFarmAssistant({
+        data: {
+          prompt: trimmed,
+          history: messages.slice(-10).map(({ role, text: message }) => ({
+            role,
+            text: message,
+          })),
+          location: location
+            ? { latitude: location.lat, longitude: location.lng }
+            : null,
+          weather: weather.data
+            ? {
+                temperature: weather.data.current.temperature_2m,
+                humidity: weather.data.current.relative_humidity_2m,
+                rainfall: weather.data.current.precipitation,
+                forecastRainfall: weather.data.daily.precipitation_sum.reduce(
+                  (sum, amount) => sum + amount,
+                  0,
+                ),
+              }
+            : null,
+          nasaPower: nasaPower.data ?? null,
+        },
+      });
       setMessages((prev) => [
         ...prev,
         {
           id: newId(),
           role: "assistant",
-          text: getMockReply(trimmed),
+          text: response.answer,
           sentAt: new Date().toISOString(),
         },
       ]);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The assistant could not respond.",
+      );
+    } finally {
       setTyping(false);
-    }, REPLY_DELAY_MS);
+    }
   };
 
+<<<<<<< HEAD
   const firstName = user?.firstName || user?.fullName?.split(" ")[0] || "there";
+=======
+  const firstName = profile.name.trim().split(" ")[0] || "there";
+>>>>>>> main
 
   return (
     <div className="fixed inset-x-0 top-0 bottom-16 flex flex-col bg-background md:static md:-mb-10 md:h-screen">
@@ -84,7 +135,13 @@ function Assistant() {
             <h1 className="font-serif text-xl font-semibold">Siesta</h1>
             <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
               <MapPinIcon className="size-3" />
+<<<<<<< HEAD
               Using data for {locationName}
+=======
+              {location
+                ? `Using live weather for ${location.city}`
+                : "No farm location set"}
+>>>>>>> main
             </p>
           </div>
           {messages.length > 0 && (
@@ -105,9 +162,10 @@ function Assistant() {
       <div className="flex-1 overflow-y-auto px-4 py-5">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
           <AssistantBubble>
-            Hi {firstName}! I'm Siesta, your farming assistant. I can read NASA
-            satellite data for your area and help with planting, pests, water
-            and weather. What would you like to know?
+            Hi {firstName}! I&apos;m Siesta, your AI farming assistant. I can
+            use your current Open-Meteo weather when available. Ask me about
+            crops, field conditions, or a farming decision you&apos;re
+            considering.
           </AssistantBubble>
 
           {messages.length === 0 && (
@@ -140,7 +198,10 @@ function Assistant() {
                 <div className="max-w-[82%] rounded-3xl rounded-br-md bg-primary px-4 py-3 text-primary-foreground">
                   {m.text}
                 </div>
-                <time dateTime={m.sentAt} className="pr-2 text-xs text-muted-foreground">
+                <time
+                  dateTime={m.sentAt}
+                  className="pr-2 text-xs text-muted-foreground"
+                >
                   {format(new Date(m.sentAt), "h:mm a")}
                 </time>
               </motion.div>
@@ -245,7 +306,11 @@ function AssistantBubble({
 
 function TypingIndicator() {
   return (
-    <div className="flex items-end gap-3" aria-live="polite" aria-label="Assistant is typing">
+    <div
+      className="flex items-end gap-3"
+      aria-live="polite"
+      aria-label="Assistant is typing"
+    >
       <AssistantAvatar />
       <div className="flex gap-1.5 rounded-3xl rounded-bl-md border border-border bg-card px-5 py-4">
         {[0, 1, 2].map((i) => (
@@ -253,7 +318,12 @@ function TypingIndicator() {
             key={i}
             className={cn("size-2 rounded-full bg-primary")}
             animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+            transition={{
+              duration: 0.9,
+              repeat: Infinity,
+              delay: i * 0.15,
+              ease: "easeInOut",
+            }}
           />
         ))}
       </div>

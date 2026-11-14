@@ -11,6 +11,7 @@ import {
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1556490496-45afc7b8b8e5?auto=format&fit=crop&w=1600&q=85";
 
+<<<<<<< HEAD
 function LogoInverse() {
   return (
     <span className="font-bold tracking-tight text-emerald-400">
@@ -18,6 +19,19 @@ function LogoInverse() {
     </span>
   );
 }
+=======
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: `${site.name} | Live farm weather and AI` },
+      { name: "description", content: site.tagline },
+      { property: "og:title", content: `${site.name} | Smarter farming` },
+      { property: "og:description", content: site.tagline },
+    ],
+  }),
+  component: Welcome,
+});
+>>>>>>> main
 
 interface SlideType {
   icon: () => ReactNode;
@@ -28,11 +42,30 @@ interface SlideType {
 
 const SLIDES: SlideType[] = [
   {
+<<<<<<< HEAD
     icon: () => <span>🌱</span>,
     title: "One app for the whole farm cycle",
     subtitle: "Plan, grow, and manage your season",
     description:
       "Check local weather and historical climate, compare crop suitability, plan crop rotations and soil care, explore nearby suppliers, and set farm reminders. Soil photos are a manual texture guide, not an automatic diagnosis.",
+=======
+    icon: SatelliteIcon,
+    title: "Real weather, made useful",
+    body: "Explore current forecasts and historical temperature, rainfall, and modelled surface soil-moisture data.",
+    stat: "Open-Meteo live forecast",
+  },
+  {
+    icon: MapPinIcon,
+    title: "Advice for your exact field",
+    body: "Compare local forecast readings with crop reference traits and the soil information you enter.",
+    stat: "GPS or place search",
+  },
+  {
+    icon: BotMessageSquareIcon,
+    title: "Ask Siesta, powered by Cloudflare Workers AI",
+    body: "Get farming guidance grounded in your prompt and current weather context, with important limitations called out.",
+    stat: "Server-side AI",
+>>>>>>> main
   },
 ];
 
@@ -233,6 +266,7 @@ export function Welcome() {
               />
             )}
           </div>
+<<<<<<< HEAD
 
           {/* APP DESCRIPTION TEXT */}
           <div className="absolute inset-x-6 top-24 z-10 max-w-md sm:inset-x-8 sm:top-28">
@@ -247,7 +281,14 @@ export function Welcome() {
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/70 max-w-xs">
               {slide.description}
+=======
+          <div className="absolute bottom-8 left-6 hidden max-w-sm text-white md:block">
+            <p className="text-sm font-semibold tracking-widest text-white/80 uppercase">
+              Your field, your forecast
+>>>>>>> main
             </p>
+            <p className="font-serif text-3xl font-semibold">Set a location</p>
+            <p className="text-white/85">Start with GPS or search for a place.</p>
           </div>
 
           {/* BOTTOM METRIC PANEL OR AUTH INITIATION */}
@@ -334,10 +375,83 @@ export function Welcome() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="flex flex-col justify-center px-1 py-5 sm:px-3 md:px-0 md:py-0">
           <div className="max-w-xl space-y-7">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-300/15 bg-emerald-300/10 text-3xl text-emerald-200 shadow-lg shadow-emerald-950/20">
               <Icon />
+=======
+        {/* Copy + onboarding */}
+        <div className="relative -mt-16 flex flex-col px-5 pb-8 md:mt-0 md:px-0">
+          <motion.h1
+            initial={{ y: 12 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="font-serif text-[2.6rem] leading-[1.05] font-semibold tracking-tight text-balance md:text-6xl"
+          >
+            Smarter farming with{" "}
+            <span className="text-primary italic">real weather</span> and AI.
+          </motion.h1>
+          <p className="pt-4 text-lg text-muted-foreground">
+            Analyze local forecasts, compare crop requirements, and ask an AI assistant for practical guidance.
+          </p>
+
+          <section
+            aria-label="How TerraBites helps"
+            className="mt-7 rounded-3xl border border-border bg-card p-5 shadow-sm"
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="flex gap-4"
+              >
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-secondary text-secondary-foreground">
+                  <Icon className="size-7" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold tracking-wider text-primary uppercase">
+                    {slide.stat}
+                  </p>
+                  <h2 className="pt-1 text-xl font-bold">{slide.title}</h2>
+                  <p className="pt-1 text-muted-foreground">{slide.body}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+            <div className="flex items-center justify-between pt-5">
+              <div className="flex gap-2" role="tablist">
+                {SLIDES.map((s, i) => (
+                  <button
+                    key={s.title}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === index}
+                    aria-label={`Show slide ${i + 1}: ${s.title}`}
+                    onClick={() => setIndex(i)}
+                    className="flex h-8 cursor-pointer items-center"
+                  >
+                    <span
+                      className={cn(
+                        "block h-2.5 rounded-full transition-all",
+                        i === index ? "w-8 bg-primary" : "w-2.5 bg-border",
+                      )}
+                    />
+                  </button>
+                ))}
+              </div>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="rounded-full font-semibold"
+                onClick={() => setIndex(isLast ? 0 : index + 1)}
+              >
+                {isLast ? "Start over" : "Next"}
+                <ArrowRightIcon />
+              </Button>
+>>>>>>> main
             </div>
 
             {isSignedIn ? (
@@ -417,6 +531,12 @@ export function Welcome() {
               </>
             )}
           </div>
+<<<<<<< HEAD
+=======
+          <p className="pt-4 text-center text-xs text-muted-foreground">
+            Weather by Open-Meteo · AI by Cloudflare Workers AI.
+          </p>
+>>>>>>> main
         </div>
       </div>
     </div>

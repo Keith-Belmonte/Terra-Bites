@@ -1,14 +1,12 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 import {
   BotMessageSquareIcon,
-  CalendarDaysIcon,
   CheckCircle2Icon,
   CircleAlertIcon,
   DnaIcon,
   ClockIcon,
   DropletIcon,
   LayersIcon,
-  SatelliteIcon,
   ShieldAlertIcon,
   TrendingUpIcon,
   type LucideIcon,
@@ -17,9 +15,11 @@ import { Button } from "@/components/ui/button.tsx";
 import ScreenHeader from "@/components/ui/screen-header.tsx";
 import SuitabilityRing from "@/components/farm/suitability-ring.tsx";
 import { LevelBadge } from "@/components/farm/crop-card.tsx";
-import { getCrop, suitabilityLabel } from "@/lib/mock/crops.ts";
+import { getCrop, suitabilityLabel } from "@/lib/crops.ts";
 import { useRecommendations } from "@/hooks/use-recommendation.ts";
 import { cn } from "@/lib/utils.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
+import { useFarmWeather } from "@/hooks/use-farm-weather.ts";
 
 export const Route = createFileRoute("/_app/crops/$cropId")({
   loader: ({ params }) => {
@@ -37,9 +37,34 @@ function CropDetail() {
   const { cropId } = Route.useParams();
   const crop = getCrop(cropId);
   if (!crop) throw notFound();
-  const scored = useRecommendations().byId.get(crop.id);
-  if (!scored) throw notFound();
+  const recommendations = useRecommendations();
+  const scored = recommendations.byId.get(crop.id);
+  const { location } = useFarm();
+  const weather = useFarmWeather();
+  if (!scored) {
+    return (
+      <>
+        <ScreenHeader title={crop.name} subtitle={crop.localName} backTo="/crops" />
+        <div className="mx-auto max-w-3xl px-4 pt-6">
+          <section className="rounded-3xl border border-border bg-card p-5">
+            <h2 className="font-serif text-xl font-semibold">Live suitability score unavailable</h2>
+            <p className="pt-2 text-muted-foreground">
+              {weather.error
+                ? `Weather data could not be loaded: ${weather.error.message}`
+                : "Set a farm location and load its live weather data to calculate this crop's suitability."}
+            </p>
+            {!location && (
+              <Button className="mt-4" render={<Link to="/location" />} nativeButton={false}>
+                Set farm location
+              </Button>
+            )}
+          </section>
+        </div>
+      </>
+    );
+  }
   const { score, breakdown, reasons } = scored;
+  const inputs = recommendations.inputs;
   const t = crop.traits;
 
   const traits = [
@@ -47,8 +72,6 @@ function CropDetail() {
     { label: "Temperature", value: `${t.tempMin}–${t.tempMax} °C` },
     { label: "Drought tolerance", value: t.droughtTolerance },
     { label: "Growth time", value: crop.duration },
-    { label: "Farming cost", value: t.inputCost },
-    { label: "Market value", value: t.marketValue },
   ];
   const bars = [
     { label: "Local soil", value: breakdown.soil },
@@ -57,7 +80,6 @@ function CropDetail() {
   ];
 
   const facts: Array<{ icon: LucideIcon; label: string; value: string }> = [
-    { icon: TrendingUpIcon, label: "Expected yield", value: crop.expectedYield },
     { icon: DropletIcon, label: "Water need", value: crop.water },
     { icon: ClockIcon, label: "Harvest in", value: crop.daysToHarvest },
     { icon: LayersIcon, label: "Best soil", value: crop.soils.join(", ") },
@@ -83,15 +105,10 @@ function CropDetail() {
 
         <div className="flex flex-col gap-4 px-4 pt-4 md:px-0">
           <section className="rounded-3xl bg-primary p-5 text-primary-foreground">
-            <p className="flex items-center gap-2 text-sm font-semibold text-primary-foreground/80">
-              <CalendarDaysIcon className="size-4" />
-              Recommended planting period
-            </p>
-            <p className="pt-1 font-serif text-3xl font-semibold">
-              {crop.plantingWindow}
-            </p>
+            <p className="text-sm font-semibold text-primary-foreground/80">Weather- and soil-based suitability</p>
+            <p className="pt-1 font-serif text-3xl font-semibold">{suitabilityLabel(score)} match</p>
             <p className="pt-2 text-primary-foreground/90">
-              {suitabilityLabel(score)} match. {crop.reason}
+              This heuristic score compares reference crop requirements with the selected field&apos;s soil inputs and current forecast. It is not a yield probability or planting-date guarantee.
             </p>
           </section>
 
@@ -157,25 +174,40 @@ function CropDetail() {
             </dl>
           </section>
 
-          <section className="rounded-3xl border border-border bg-card p-5">
-            <h2 className="flex items-center gap-2 font-serif text-xl font-semibold">
-              <SatelliteIcon className="size-5 text-primary" />
-              What the data says
-            </h2>
-            <ul className="flex flex-col divide-y divide-border pt-2">
-              {crop.dataInsights.map((d) => (
-                <li key={d.label} className="py-3">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-sm font-semibold text-muted-foreground">
-                      {d.label}
-                    </span>
-                    <span className="font-extrabold">{d.value}</span>
-                  </div>
-                  <p className="pt-1 text-sm">{d.note}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
+          {inputs && (
+            <section className="rounded-3xl border border-border bg-card p-5">
+              <h2 className="font-serif text-xl font-semibold">Live analysis inputs</h2>
+              <dl className="grid grid-cols-2 gap-3 pt-3">
+                <div className="rounded-2xl bg-muted p-3">
+                  <dt className="text-xs font-semibold text-muted-foreground">7-day average temperature</dt>
+                  <dd className="font-bold">{inputs.climate.avgTemp.toFixed(1)} °C</dd>
+                </div>
+                <div className="rounded-2xl bg-muted p-3">
+                  <dt className="text-xs font-semibold text-muted-foreground">7-day forecast rain</dt>
+                  <dd className="font-bold">{inputs.climate.rainOutlook7d.toFixed(1)} mm</dd>
+                </div>
+                <div className="rounded-2xl bg-muted p-3">
+                  <dt className="text-xs font-semibold text-muted-foreground">Soil profile</dt>
+                  <dd className="font-bold">
+                    {inputs.soil.type}, pH {inputs.soil.ph.toFixed(1)}
+                    {recommendations.soilSource === "estimate" ? " · estimate" : " · entered"}
+                  </dd>
+                </div>
+                <div className="rounded-2xl bg-muted p-3">
+                  <dt className="text-xs font-semibold text-muted-foreground">Modelled surface moisture</dt>
+                  <dd className="font-bold">
+                    {inputs.climate.soilMoisture === null
+                      ? "Unavailable"
+                      : `${inputs.climate.soilMoisture.toFixed(1)}%`}
+                  </dd>
+                </div>
+              </dl>
+              <p className="pt-3 text-xs text-muted-foreground">
+                Weather forecast from Open-Meteo for {location?.city ?? "the selected location"}.
+                Soil moisture is a model estimate, not a field measurement.
+              </p>
+            </section>
+          )}
 
           <section className="rounded-3xl border border-border bg-card p-5">
             <h2 className="font-serif text-xl font-semibold">Care instructions</h2>

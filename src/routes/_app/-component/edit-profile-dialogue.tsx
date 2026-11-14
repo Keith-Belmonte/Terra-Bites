@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { useFarm } from "@/components/providers/farm-context.tsx";
-import { CROPS } from "@/lib/mock/crops.ts";
+import { CROPS } from "@/lib/crops.ts";
 import { cn } from "@/lib/utils.ts";
 
 const schema = z.object({

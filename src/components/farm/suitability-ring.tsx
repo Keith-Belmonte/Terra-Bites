@@ -1,4 +1,4 @@
-import { suitabilityLabel } from "@/lib/mock/crops.ts";
+import { suitabilityLabel } from "@/lib/crops.ts";
 import { cn } from "@/lib/utils.ts";
 
 export default function SuitabilityRing({

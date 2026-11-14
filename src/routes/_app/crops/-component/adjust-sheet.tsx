@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/sheet.tsx";
 import { useFarm } from "@/components/providers/farm-context.tsx";
 import { useRecommendations } from "@/hooks/use-recommendation.ts";
-import { getLocation } from "@/lib/format.ts";
-import { CROP_FILTERS, type Level, type SoilType } from "@/lib/mock/crops.ts";
+import { CROP_FILTERS, type Level, type SoilType } from "@/lib/crops.ts";
 import {
+  DEFAULT_SOIL,
   PRIORITY_KEYS,
   PRIORITY_META,
   type Drainage,
@@ -44,8 +44,7 @@ export default function AdjustSheet({
 }) {
   const farm = useFarm();
   const { inputs, soilSource, ranked } = useRecommendations();
-  const loc = getLocation(farm.locationId);
-  const soil = inputs.soil;
+  const soil = inputs?.soil ?? farm.soilTest ?? DEFAULT_SOIL;
   const setSoil = (patch: Partial<SoilInfo>) => farm.setSoilTest({ ...soil, ...patch });
 
   return (
@@ -67,9 +66,15 @@ export default function AdjustSheet({
           <Group icon={LayersIcon} title="Local soil information">
             <p className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
               <span>
+<<<<<<< HEAD
                 {soilSource === "entered"
                   ? "Using your entered soil information"
                   : `From the ${loc.province} soil survey`}
+=======
+                {soilSource === "test"
+                  ? "Using your soil test"
+                  : "General soil estimate; replace with a field soil test"}
+>>>>>>> main
               </span>
               {soilSource === "entered" && (
                 <Button
@@ -78,7 +83,7 @@ export default function AdjustSheet({
                   className="font-bold"
                   onClick={() => farm.setSoilTest(null)}
                 >
-                  <RotateCcwIcon /> Use survey
+                  <RotateCcwIcon />                   Use general estimate
                 </Button>
               )}
             </p>
@@ -131,13 +136,12 @@ export default function AdjustSheet({
           {/* Weather & climate */}
           <Group icon={CloudSunIcon} title="Weather & climate">
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <Stat label="Season" value={inputs.climate.season} />
-              <Stat label="Average temperature" value={`${inputs.climate.avgTemp} °C`} />
-              <Stat label="Rain, next 30 days" value={`${inputs.climate.rainOutlook30d} mm`} />
-              <Stat label="Soil moisture" value={`${inputs.climate.soilMoisture}%`} />
+              <Stat label="Average temperature" value={inputs ? `${inputs.climate.avgTemp.toFixed(1)} °C` : "Waiting for location"} />
+              <Stat label="Rain, next 7 days" value={inputs ? `${inputs.climate.rainOutlook7d.toFixed(1)} mm` : "Waiting for forecast"} />
+              <Stat label="Modelled soil moisture" value={inputs?.climate.soilMoisture === null || !inputs ? "Unavailable" : `${inputs.climate.soilMoisture.toFixed(1)}%`} />
             </div>
             <p className="text-xs text-muted-foreground">
-              From NASA POWER, GPM and SMAP for {loc.city} · sample data
+              Forecast readings are from Open-Meteo. Soil moisture is a model estimate when available, not a sensor measurement.
             </p>
             <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl bg-muted px-4">
               <span className="min-w-0 flex-1">

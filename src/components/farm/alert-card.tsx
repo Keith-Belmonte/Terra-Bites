@@ -1,20 +1,20 @@
-import type { FarmAlert } from "@/lib/mock/conditions.ts";
+import type { WeatherAlert } from "@/lib/weather-analysis.ts";
 import { cn } from "@/lib/utils.ts";
 
-const TONE: Record<FarmAlert["severity"], string> = {
+const TONE: Record<WeatherAlert["severity"], string> = {
   high: "border-destructive/30 bg-destructive/8 [&_[data-icon]]:bg-destructive [&_[data-icon]]:text-white",
   medium:
     "border-accent/60 bg-accent/15 [&_[data-icon]]:bg-accent [&_[data-icon]]:text-accent-foreground",
   low: "border-border bg-card [&_[data-icon]]:bg-secondary [&_[data-icon]]:text-secondary-foreground",
 };
 
-const LABEL: Record<FarmAlert["severity"], string> = {
+const LABEL: Record<WeatherAlert["severity"], string> = {
   high: "High",
   medium: "Medium",
   low: "Heads up",
 };
 
-export default function AlertCard({ alert }: { alert: FarmAlert }) {
+export default function AlertCard({ alert }: { alert: WeatherAlert }) {
   const Icon = alert.icon;
   return (
     <article

@@ -13,6 +13,17 @@ export type ChatMessage = {
   sentAt: string;
 };
 
+export type FarmLocation = {
+  id: string;
+  city: string;
+  province: string;
+  country: string;
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  source?: "gps" | "search" | "map" | "coordinates";
+};
+
 export type FarmProfile = {
   name: string;
   farmName: string;
@@ -34,17 +45,15 @@ export type NotificationPrefs = {
   tips: boolean;
 };
 
-export type DataSourcePrefs = {
-  power: boolean;
-  smap: boolean;
-  modis: boolean;
-  gpm: boolean;
-};
-
 export type FarmState = {
+<<<<<<< HEAD
   locationId: string;
   setLocationId: (id: string) => void;
   deviceLocation: DeviceLocation | null;
+=======
+  location: FarmLocation | null;
+  setFarmLocation: (location: FarmLocation) => void;
+>>>>>>> main
   gps: GpsStatus;
   locatedAt: string | null;
   requestLocation: () => void;
@@ -55,11 +64,13 @@ export type FarmState = {
   setLanguage: (language: Language) => void;
   notifications: NotificationPrefs;
   setNotifications: (prefs: NotificationPrefs) => void;
-  dataSources: DataSourcePrefs;
-  setDataSources: (prefs: DataSourcePrefs) => void;
   profile: FarmProfile;
   setProfile: (profile: FarmProfile) => void;
+<<<<<<< HEAD
   /** Farmer-entered soil information; null means use the regional soil survey. */
+=======
+  /** Farmer-entered soil details; null means use the labelled general estimate. */
+>>>>>>> main
   soilTest: SoilInfo | null;
   setSoilTest: (soil: SoilInfo | null) => void;
   priorities: Priorities;

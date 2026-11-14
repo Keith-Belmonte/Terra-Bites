@@ -15,14 +15,21 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart.tsx";
-import type { Metric, Point } from "@/lib/mock/insights.ts";
+import type { WeatherPoint } from "@/lib/farm-api.ts";
+
+type ChartMetric = {
+  key: string;
+  title: string;
+  chart: "area" | "bar" | "line";
+  compareLabel?: string;
+};
 
 export default function MetricChart({
   metric,
   data,
 }: {
-  metric: Metric;
-  data: Point[];
+  metric: ChartMetric;
+  data: WeatherPoint[];
 }) {
   const config = {
     value: { label: metric.title, color: "var(--chart-1)" },

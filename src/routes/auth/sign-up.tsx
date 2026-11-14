@@ -12,6 +12,7 @@ function SignUpPage() {
         path="/auth/sign-up"
         routing="path"
         signInUrl="/auth/sign-in"
+        forceRedirectUrl="/home"
         fallbackRedirectUrl="/home"
       />
     </main>
