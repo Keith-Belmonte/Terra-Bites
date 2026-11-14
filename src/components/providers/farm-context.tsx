@@ -31,6 +31,14 @@ export type FarmProfile = {
   preferredCrops: string[];
 };
 
+export type DeviceLocation = {
+  latitude: number;
+  longitude: number;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
+
 export type NotificationPrefs = {
   alerts: boolean;
   weather: boolean;
@@ -38,8 +46,14 @@ export type NotificationPrefs = {
 };
 
 export type FarmState = {
+<<<<<<< HEAD
+  locationId: string;
+  setLocationId: (id: string) => void;
+  deviceLocation: DeviceLocation | null;
+=======
   location: FarmLocation | null;
   setFarmLocation: (location: FarmLocation) => void;
+>>>>>>> main
   gps: GpsStatus;
   locatedAt: string | null;
   requestLocation: () => void;
@@ -52,7 +66,11 @@ export type FarmState = {
   setNotifications: (prefs: NotificationPrefs) => void;
   profile: FarmProfile;
   setProfile: (profile: FarmProfile) => void;
+<<<<<<< HEAD
+  /** Farmer-entered soil information; null means use the regional soil survey. */
+=======
   /** Farmer-entered soil details; null means use the labelled general estimate. */
+>>>>>>> main
   soilTest: SoilInfo | null;
   setSoilTest: (soil: SoilInfo | null) => void;
   priorities: Priorities;

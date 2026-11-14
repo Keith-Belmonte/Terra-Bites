@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppAssistantRouteImport } from './routes/_app/assistant'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppLocationRouteImport } from './routes/_app/location'
+import { Route as AppMapsRouteImport } from './routes/_app/maps'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
@@ -38,6 +40,11 @@ const AppAssistantRoute = AppAssistantRouteImport.update({
   path: '/assistant',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHomeRoute = AppHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -51,6 +58,11 @@ const AppInsightsRoute = AppInsightsRouteImport.update({
 const AppLocationRoute = AppLocationRouteImport.update({
   id: '/location',
   path: '/location',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMapsRoute = AppMapsRouteImport.update({
+  id: '/maps',
+  path: '/maps',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -97,9 +109,11 @@ const AuthSignUpSsoCallbackRoute = AuthSignUpSsoCallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assistant': typeof AppAssistantRoute
+  '/dashboard': typeof AppDashboardRoute
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
+  '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRouteWithChildren
@@ -112,9 +126,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assistant': typeof AppAssistantRoute
+  '/dashboard': typeof AppDashboardRoute
   '/home': typeof AppHomeRoute
   '/insights': typeof AppInsightsRoute
   '/location': typeof AppLocationRoute
+  '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRouteWithChildren
@@ -129,9 +145,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/assistant': typeof AppAssistantRoute
+  '/_app/dashboard': typeof AppDashboardRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/insights': typeof AppInsightsRoute
   '/_app/location': typeof AppLocationRoute
+  '/_app/maps': typeof AppMapsRoute
   '/_app/profile': typeof AppProfileRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/sign-in': typeof AuthSignInRouteWithChildren
@@ -146,9 +164,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assistant'
+    | '/dashboard'
     | '/home'
     | '/insights'
     | '/location'
+    | '/maps'
     | '/profile'
     | '/auth/callback'
     | '/auth/sign-in'
@@ -161,9 +181,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assistant'
+    | '/dashboard'
     | '/home'
     | '/insights'
     | '/location'
+    | '/maps'
     | '/profile'
     | '/auth/callback'
     | '/auth/sign-in'
@@ -177,9 +199,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_app/assistant'
+    | '/_app/dashboard'
     | '/_app/home'
     | '/_app/insights'
     | '/_app/location'
+    | '/_app/maps'
     | '/_app/profile'
     | '/auth/callback'
     | '/auth/sign-in'
@@ -221,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssistantRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/home': {
       id: '/_app/home'
       path: '/home'
@@ -240,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/location'
       fullPath: '/location'
       preLoaderRoute: typeof AppLocationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/maps': {
+      id: '/_app/maps'
+      path: '/maps'
+      fullPath: '/maps'
+      preLoaderRoute: typeof AppMapsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -303,9 +341,11 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAssistantRoute: typeof AppAssistantRoute
+  AppDashboardRoute: typeof AppDashboardRoute
   AppHomeRoute: typeof AppHomeRoute
   AppInsightsRoute: typeof AppInsightsRoute
   AppLocationRoute: typeof AppLocationRoute
+  AppMapsRoute: typeof AppMapsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppCropsCropIdRoute: typeof AppCropsCropIdRoute
   AppCropsIndexRoute: typeof AppCropsIndexRoute
@@ -313,9 +353,11 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAssistantRoute: AppAssistantRoute,
+  AppDashboardRoute: AppDashboardRoute,
   AppHomeRoute: AppHomeRoute,
   AppInsightsRoute: AppInsightsRoute,
   AppLocationRoute: AppLocationRoute,
+  AppMapsRoute: AppMapsRoute,
   AppProfileRoute: AppProfileRoute,
   AppCropsCropIdRoute: AppCropsCropIdRoute,
   AppCropsIndexRoute: AppCropsIndexRoute,

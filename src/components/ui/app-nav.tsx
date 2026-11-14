@@ -3,6 +3,8 @@ import {
   BotMessageSquareIcon,
   ChartAreaIcon,
   HouseIcon,
+  LayoutDashboardIcon,
+  MapIcon,
   SproutIcon,
   UserRoundIcon,
   type LucideIcon,
@@ -14,9 +16,15 @@ import ThemeToggle from "@/components/ui/theme-toggle.tsx";
 const TABS: Array<{ label: string; to: RoutePath; icon: LucideIcon }> = [
   { label: "Home", to: "/home", icon: HouseIcon },
   { label: "Insights", to: "/insights", icon: ChartAreaIcon },
+  { label: "Maps", to: "/maps", icon: MapIcon },
   { label: "Crops", to: "/crops", icon: SproutIcon },
   { label: "Assistant", to: "/assistant", icon: BotMessageSquareIcon },
   { label: "Profile", to: "/profile", icon: UserRoundIcon },
+];
+
+const SIDE_TABS: Array<{ label: string; to: RoutePath; icon: LucideIcon }> = [
+  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboardIcon },
+  ...TABS,
 ];
 
 export function BottomNav() {
@@ -25,14 +33,14 @@ export function BottomNav() {
       aria-label="Main"
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-5">
+      <ul className="mx-auto grid max-w-xl grid-cols-6">
         {TABS.map(({ label, to, icon: Icon }) => (
           <li key={to}>
             <Link
               to={to}
-              className="group flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-semibold text-muted-foreground transition-colors data-[status=active]:text-primary"
+              className="group flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 text-[10px] leading-none font-semibold text-muted-foreground transition-colors data-[status=active]:text-primary"
             >
-              <span className="grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-secondary">
+              <span className="grid h-8 w-10 place-items-center rounded-full transition-colors group-data-[status=active]:bg-secondary">
                 <Icon className="size-[22px]" />
               </span>
               {label}
@@ -51,7 +59,7 @@ export function SideNav() {
         <Logo />
       </Link>
       <nav aria-label="Main" className="flex flex-col gap-1">
-        {TABS.map(({ label, to, icon: Icon }) => (
+        {SIDE_TABS.map(({ label, to, icon: Icon }) => (
           <Link
             key={to}
             to={to}

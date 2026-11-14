@@ -16,9 +16,14 @@ export function useRecommendations(): {
   ranked: ScoredCrop[];
   regionalOptions: ScoredCrop[];
   byId: Map<string, ScoredCrop>;
+<<<<<<< HEAD
+  inputs: RecommendInputs;
+  soilSource: "entered" | "survey";
+=======
   inputs: RecommendInputs | null;
   soilSource: "test" | "estimate";
   forecastSource: "NASA GEOS-CF" | "Open-Meteo" | null;
+>>>>>>> main
 } {
   const { location, soilTest, priorities, irrigation } = useFarm();
   const weather = useFarmWeather();
@@ -97,8 +102,12 @@ export function useRecommendations(): {
       regionalOptions: selectRegionalCropOptions(ranked),
       byId: new Map(ranked.map((result) => [result.crop.id, result])),
       inputs,
+<<<<<<< HEAD
+      soilSource: soilTest ? "entered" : "survey",
+=======
       soilSource: soilTest ? "test" : "estimate",
       forecastSource: forecastClimate.source,
+>>>>>>> main
     };
   }, [
     location,

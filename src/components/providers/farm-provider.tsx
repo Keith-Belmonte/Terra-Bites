@@ -1,8 +1,17 @@
+<<<<<<< HEAD
+import { useCallback, useMemo, useState } from "react";
+import {
+  FarmContext,
+  type ChatMessage,
+  type DataSourcePrefs,
+  type DeviceLocation,
+=======
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import {
   FarmContext,
   type ChatMessage,
   type FarmLocation,
+>>>>>>> main
   type FarmProfile,
   type FarmState,
   type GpsStatus,
@@ -12,6 +21,20 @@ import {
 } from "./farm-context.tsx";
 import type { Priorities, SoilInfo } from "@/lib/recommend.ts";
 
+<<<<<<< HEAD
+type ReverseGeocodeResult = {
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    county?: string;
+    state?: string;
+    province?: string;
+    country?: string;
+  };
+};
+=======
 type SavedFarmState = {
   location: FarmLocation | null;
   soilTest: SoilInfo | null;
@@ -137,21 +160,43 @@ function updateSettings(
   }
   notifySubscribers();
 }
+>>>>>>> main
 
 export default function FarmProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+<<<<<<< HEAD
+  const [locationId, setLocationIdState] = useState(LOCATIONS[0].id);
+  const [deviceLocation, setDeviceLocation] = useState<DeviceLocation | null>(null);
+  const [soilTest, setSoilTest] = useState<SoilInfo | null>(null);
+  const [priorities, setPriorities] = useState<Priorities>({
+    profit: 2,
+    lowCost: 1,
+    waterSaving: 1,
+    quickHarvest: 0,
+    lowRisk: 1,
+  });
+  const [irrigation, setIrrigation] = useState(true);
+=======
   const settings = useSyncExternalStore(
     subscribeToSettings,
     getSettingsSnapshot,
     getServerSettingsSnapshot,
   );
+>>>>>>> main
   const [gps, setGps] = useState<GpsStatus>("prompt");
   const [locatedAt, setLocatedAt] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+<<<<<<< HEAD
+  // A soil test belongs to one field, so moving area falls back to the survey.
+  const setLocationId = useCallback((id: string) => {
+    setLocationIdState(id);
+    setDeviceLocation(null);
+    setSoilTest(null);
+=======
   const setFarmLocation = useCallback((location: FarmLocation) => {
     updateSettings((current) => ({ ...current, location, soilTest: null }));
     setGps("granted");
@@ -178,6 +223,7 @@ export default function FarmProvider({
   }, []);
   const setIrrigation = useCallback((irrigation: boolean) => {
     updateSettings((current) => ({ ...current, irrigation }));
+>>>>>>> main
   }, []);
 
   const requestLocation = useCallback(() => {
@@ -185,6 +231,63 @@ export default function FarmProvider({
       setGps("denied");
       return;
     }
+<<<<<<< HEAD
+
+    setGps("locating");
+    setDeviceLocation(null);
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      const { latitude, longitude } = coords;
+      setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
+      setGps("granted");
+      setLocatedAt(new Date().toISOString());
+
+      try {
+        const params = new URLSearchParams({
+          format: "jsonv2",
+          lat: String(latitude),
+          lon: String(longitude),
+          addressdetails: "1",
+        });
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?${params}`,
+          { headers: { Accept: "application/json" } },
+        );
+        if (!response.ok) return;
+
+        const result = (await response.json()) as ReverseGeocodeResult;
+        const address = result.address;
+        const city =
+          address?.city ??
+          address?.town ??
+          address?.village ??
+          address?.municipality ??
+          address?.county ??
+          null;
+        setDeviceLocation({
+          latitude,
+          longitude,
+          city,
+          region: address?.state ?? address?.province ?? null,
+          country: address?.country ?? null,
+        });
+      } catch {
+        setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
+      }
+    }, () => {
+      setGps("denied");
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  }, []);
+
+  const denyLocation = useCallback(() => {
+    setGps("denied");
+  }, []);
+
+  const value = useMemo<FarmState>(
+    () => ({
+      locationId,
+      setLocationId,
+      deviceLocation,
+=======
     setGps("locating");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -213,6 +316,7 @@ export default function FarmProvider({
     () => ({
       location: settings.location,
       setFarmLocation,
+>>>>>>> main
       gps,
       locatedAt,
       requestLocation,
@@ -235,8 +339,14 @@ export default function FarmProvider({
       setMessages,
     }),
     [
+<<<<<<< HEAD
+      locationId,
+      setLocationId,
+      deviceLocation,
+=======
       settings,
       setFarmLocation,
+>>>>>>> main
       gps,
       locatedAt,
       requestLocation,
