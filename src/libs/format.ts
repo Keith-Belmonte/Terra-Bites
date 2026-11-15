@@ -1,4 +1,12 @@
 import type { Units } from "@/components/providers/farm-context.tsx";
+import {
+  LOCATIONS,
+  type FarmLocation as RegionalLocation,
+} from "@/lib/mock/conditions.ts";
+
+export function getLocation(id: string): RegionalLocation {
+  return LOCATIONS.find((location) => location.id === id) ?? LOCATIONS[0]!;
+}
 
 export function formatCoords(lat: number, lng: number): string {
   const ns = lat >= 0 ? "N" : "S";

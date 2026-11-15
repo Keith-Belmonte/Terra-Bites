@@ -52,6 +52,7 @@ export const LOCATIONS: FarmLocation[] = [
     climate: {
       season: "Dry season",
       avgTemp: 29,
+      rainOutlook7d: 9.8,
       rainOutlook30d: 42,
       soilMoisture: 34,
       humidity: 78,
@@ -79,6 +80,7 @@ export const LOCATIONS: FarmLocation[] = [
     climate: {
       season: "Wet season",
       avgTemp: 23,
+      rainOutlook7d: 38.5,
       rainOutlook30d: 165,
       soilMoisture: 41,
       humidity: 84,
@@ -111,6 +113,7 @@ export const LOCATIONS: FarmLocation[] = [
     climate: {
       season: "Dry season",
       avgTemp: 30,
+      rainOutlook7d: 15.9,
       rainOutlook30d: 68,
       soilMoisture: 29,
       humidity: 76,

@@ -1,17 +1,10 @@
-<<<<<<< HEAD
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import {
   FarmContext,
   type ChatMessage,
   type DataSourcePrefs,
   type DeviceLocation,
-=======
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
-import {
-  FarmContext,
-  type ChatMessage,
   type FarmLocation,
->>>>>>> main
   type FarmProfile,
   type FarmState,
   type GpsStatus,
@@ -20,28 +13,17 @@ import {
   type Units,
 } from "./farm-context.tsx";
 import type { Priorities, SoilInfo } from "@/lib/recommend.ts";
+import { LOCATIONS } from "@/lib/mock/conditions.ts";
 
-<<<<<<< HEAD
-type ReverseGeocodeResult = {
-  address?: {
-    city?: string;
-    town?: string;
-    village?: string;
-    municipality?: string;
-    county?: string;
-    state?: string;
-    province?: string;
-    country?: string;
-  };
-};
-=======
 type SavedFarmState = {
   location: FarmLocation | null;
-  soilTest: SoilInfo | null;
+  locationId: string;
   units: Units;
   language: Language;
   notifications: NotificationPrefs;
+  dataSources: DataSourcePrefs;
   profile: FarmProfile;
+  soilTest: SoilInfo | null;
   priorities: Priorities;
   irrigation: boolean;
 };
@@ -55,29 +37,23 @@ const DEFAULT_PROFILE: FarmProfile = {
   preferredCrops: [],
 };
 
-const DEFAULT_PRIORITIES: Priorities = {
-  profit: 2,
-  lowCost: 1,
-  waterSaving: 1,
-  quickHarvest: 0,
-  lowRisk: 1,
-};
-
-const DEFAULT_NOTIFICATIONS: NotificationPrefs = {
-  alerts: true,
-  weather: true,
-  tips: false,
-};
-
 const DEFAULT_SETTINGS: SavedFarmState = {
   location: null,
-  soilTest: null,
+  locationId: LOCATIONS[0]!.id,
   units: "metric",
   language: "en",
-  notifications: DEFAULT_NOTIFICATIONS,
+  notifications: { alerts: true, weather: true, tips: false },
+  dataSources: { power: true, smap: true, modis: true, gpm: true },
   profile: DEFAULT_PROFILE,
-  priorities: DEFAULT_PRIORITIES,
-  irrigation: false,
+  soilTest: null,
+  priorities: {
+    profit: 2,
+    lowCost: 1,
+    waterSaving: 1,
+    quickHarvest: 0,
+    lowRisk: 1,
+  },
+  irrigation: true,
 };
 
 const subscribers = new Set<() => void>();
@@ -100,6 +76,18 @@ function isFarmLocation(value: unknown): value is FarmLocation {
   );
 }
 
+function toFarmLocation(location: (typeof LOCATIONS)[number]): FarmLocation {
+  return {
+    id: location.id,
+    city: location.city,
+    province: location.province,
+    country: location.country,
+    lat: location.lat,
+    lng: location.lng,
+    source: "search",
+  };
+}
+
 function readSavedState(): SavedFarmState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -107,9 +95,15 @@ function readSavedState(): SavedFarmState {
     const value: unknown = JSON.parse(raw);
     if (!value || typeof value !== "object") return DEFAULT_SETTINGS;
     const saved = value as Partial<SavedFarmState>;
+    const locationId =
+      typeof saved.locationId === "string" &&
+      LOCATIONS.some((location) => location.id === saved.locationId)
+        ? saved.locationId
+        : DEFAULT_SETTINGS.locationId;
     return {
       ...DEFAULT_SETTINGS,
       ...saved,
+      locationId,
       location: isFarmLocation(saved.location) ? saved.location : null,
       soilTest: saved.soilTest ?? null,
     };
@@ -160,52 +154,40 @@ function updateSettings(
   }
   notifySubscribers();
 }
->>>>>>> main
 
 export default function FarmProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-<<<<<<< HEAD
-  const [locationId, setLocationIdState] = useState(LOCATIONS[0].id);
-  const [deviceLocation, setDeviceLocation] = useState<DeviceLocation | null>(null);
-  const [soilTest, setSoilTest] = useState<SoilInfo | null>(null);
-  const [priorities, setPriorities] = useState<Priorities>({
-    profit: 2,
-    lowCost: 1,
-    waterSaving: 1,
-    quickHarvest: 0,
-    lowRisk: 1,
-  });
-  const [irrigation, setIrrigation] = useState(true);
-=======
   const settings = useSyncExternalStore(
     subscribeToSettings,
     getSettingsSnapshot,
     getServerSettingsSnapshot,
   );
->>>>>>> main
   const [gps, setGps] = useState<GpsStatus>("prompt");
   const [locatedAt, setLocatedAt] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-<<<<<<< HEAD
-  // A soil test belongs to one field, so moving area falls back to the survey.
-  const setLocationId = useCallback((id: string) => {
-    setLocationIdState(id);
-    setDeviceLocation(null);
-    setSoilTest(null);
-=======
   const setFarmLocation = useCallback((location: FarmLocation) => {
     updateSettings((current) => ({ ...current, location, soilTest: null }));
     setGps("granted");
     setLocatedAt(new Date().toISOString());
   }, []);
 
-  const setSoilTest = useCallback((soilTest: SoilInfo | null) => {
-    updateSettings((current) => ({ ...current, soilTest }));
+  const setLocationId = useCallback((id: string) => {
+    const selected = LOCATIONS.find((location) => location.id === id);
+    if (!selected) {
+      throw new Error(`Unknown farm location: ${id}`);
+    }
+    updateSettings((current) => ({
+      ...current,
+      location: toFarmLocation(selected),
+      locationId: id,
+      soilTest: null,
+    }));
   }, []);
+
   const setUnits = useCallback((units: Units) => {
     updateSettings((current) => ({ ...current, units }));
   }, []);
@@ -215,15 +197,20 @@ export default function FarmProvider({
   const setNotifications = useCallback((notifications: NotificationPrefs) => {
     updateSettings((current) => ({ ...current, notifications }));
   }, []);
+  const setDataSources = useCallback((dataSources: DataSourcePrefs) => {
+    updateSettings((current) => ({ ...current, dataSources }));
+  }, []);
   const setProfile = useCallback((profile: FarmProfile) => {
     updateSettings((current) => ({ ...current, profile }));
+  }, []);
+  const setSoilTest = useCallback((soilTest: SoilInfo | null) => {
+    updateSettings((current) => ({ ...current, soilTest }));
   }, []);
   const setPriorities = useCallback((priorities: Priorities) => {
     updateSettings((current) => ({ ...current, priorities }));
   }, []);
   const setIrrigation = useCallback((irrigation: boolean) => {
     updateSettings((current) => ({ ...current, irrigation }));
->>>>>>> main
   }, []);
 
   const requestLocation = useCallback(() => {
@@ -231,68 +218,11 @@ export default function FarmProvider({
       setGps("denied");
       return;
     }
-<<<<<<< HEAD
-
-    setGps("locating");
-    setDeviceLocation(null);
-    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
-      const { latitude, longitude } = coords;
-      setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
-      setGps("granted");
-      setLocatedAt(new Date().toISOString());
-
-      try {
-        const params = new URLSearchParams({
-          format: "jsonv2",
-          lat: String(latitude),
-          lon: String(longitude),
-          addressdetails: "1",
-        });
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?${params}`,
-          { headers: { Accept: "application/json" } },
-        );
-        if (!response.ok) return;
-
-        const result = (await response.json()) as ReverseGeocodeResult;
-        const address = result.address;
-        const city =
-          address?.city ??
-          address?.town ??
-          address?.village ??
-          address?.municipality ??
-          address?.county ??
-          null;
-        setDeviceLocation({
-          latitude,
-          longitude,
-          city,
-          region: address?.state ?? address?.province ?? null,
-          country: address?.country ?? null,
-        });
-      } catch {
-        setDeviceLocation({ latitude, longitude, city: null, region: null, country: null });
-      }
-    }, () => {
-      setGps("denied");
-    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
-  }, []);
-
-  const denyLocation = useCallback(() => {
-    setGps("denied");
-  }, []);
-
-  const value = useMemo<FarmState>(
-    () => ({
-      locationId,
-      setLocationId,
-      deviceLocation,
-=======
     setGps("locating");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setFarmLocation({
-          id: `${coords.latitude.toFixed(5)},${coords.longitude.toFixed(5)}`,
+          id: `gps:${coords.latitude.toFixed(5)},${coords.longitude.toFixed(5)}`,
           city: "Farm location",
           province: "",
           country: "",
@@ -311,12 +241,28 @@ export default function FarmProvider({
   }, [setFarmLocation]);
 
   const denyLocation = useCallback(() => setGps("denied"), []);
+  const location = settings.location;
+  const deviceLocation = useMemo<DeviceLocation | null>(
+    () =>
+      location
+        ? {
+            latitude: location.lat,
+            longitude: location.lng,
+            city: location.city || null,
+            region: location.province || null,
+            country: location.country || null,
+          }
+        : null,
+    [location],
+  );
 
   const value = useMemo<FarmState>(
     () => ({
-      location: settings.location,
+      location,
       setFarmLocation,
->>>>>>> main
+      locationId: settings.locationId,
+      setLocationId,
+      deviceLocation,
       gps,
       locatedAt,
       requestLocation,
@@ -327,6 +273,8 @@ export default function FarmProvider({
       setLanguage,
       notifications: settings.notifications,
       setNotifications,
+      dataSources: settings.dataSources,
+      setDataSources,
       profile: settings.profile,
       setProfile,
       soilTest: settings.soilTest,
@@ -339,14 +287,11 @@ export default function FarmProvider({
       setMessages,
     }),
     [
-<<<<<<< HEAD
-      locationId,
+      location,
+      setFarmLocation,
+      settings,
       setLocationId,
       deviceLocation,
-=======
-      settings,
-      setFarmLocation,
->>>>>>> main
       gps,
       locatedAt,
       requestLocation,
@@ -354,6 +299,7 @@ export default function FarmProvider({
       setUnits,
       setLanguage,
       setNotifications,
+      setDataSources,
       setProfile,
       setSoilTest,
       setPriorities,

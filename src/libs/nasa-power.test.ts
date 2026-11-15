@@ -1,12 +1,53 @@
-<<<<<<< HEAD
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   fetchNasaPowerMonthlyClimatology,
   fetchNasaPowerObservations,
+  summarizeNasaPowerResponse,
 } from "@/lib/nasa-power.ts";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe("NASA POWER daily summaries", () => {
+  test("summarizes complete readings and skips fill values", () => {
+    const summary = summarizeNasaPowerResponse({
+      properties: {
+        parameter: {
+          T2M: { "20261101": 20, "20261102": -999, "20261103": 24 },
+          PRECTOTCORR: { "20261101": 2, "20261102": 10, "20261103": 4 },
+          ALLSKY_SFC_SW_DWN: {
+            "20261101": 15,
+            "20261102": 16,
+            "20261103": 21,
+          },
+        },
+      },
+    });
+
+    expect(summary).toEqual({
+      averageTemperatureC: 22,
+      totalPrecipitationMm: 6,
+      averageSolarRadiationMjM2Day: 18,
+      startDate: "2026-11-01",
+      endDate: "2026-11-03",
+      days: 2,
+    });
+  });
+
+  test("reports when there are no complete readings", () => {
+    expect(() =>
+      summarizeNasaPowerResponse({
+        properties: {
+          parameter: {
+            T2M: { "20261101": -999 },
+            PRECTOTCORR: { "20261101": -999 },
+            ALLSKY_SFC_SW_DWN: { "20261101": -999 },
+          },
+        },
+      }),
+    ).toThrow("NASA POWER has no complete daily readings");
+  });
 });
 
 describe("NASA POWER daily API", () => {
@@ -150,44 +191,5 @@ describe("NASA POWER daily API", () => {
         new Date("2026-11-07T13:00:00.000Z"),
       ),
     ).rejects.toThrow("NASA POWER request failed with status 503");
-=======
-import { describe, expect, it } from "vitest";
-import { summarizeNasaPowerResponse } from "@/lib/nasa-power.ts";
-
-describe("NASA POWER daily summaries", () => {
-  it("summarizes complete readings and skips fill values", () => {
-    const summary = summarizeNasaPowerResponse({
-      properties: {
-        parameter: {
-          T2M: { "20261101": 20, "20261102": -999, "20261103": 24 },
-          PRECTOTCORR: { "20261101": 2, "20261102": 10, "20261103": 4 },
-          ALLSKY_SFC_SW_DWN: { "20261101": 15, "20261102": 16, "20261103": 21 },
-        },
-      },
-    });
-
-    expect(summary).toEqual({
-      averageTemperatureC: 22,
-      totalPrecipitationMm: 6,
-      averageSolarRadiationMjM2Day: 18,
-      startDate: "2026-11-01",
-      endDate: "2026-11-03",
-      days: 2,
-    });
-  });
-
-  it("reports when there are no complete readings", () => {
-    expect(() =>
-      summarizeNasaPowerResponse({
-        properties: {
-          parameter: {
-            T2M: { "20261101": -999 },
-            PRECTOTCORR: { "20261101": -999 },
-            ALLSKY_SFC_SW_DWN: { "20261101": -999 },
-          },
-        },
-      }),
-    ).toThrow("NASA POWER has no complete daily readings");
->>>>>>> main
   });
 });

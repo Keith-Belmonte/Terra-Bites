@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-<<<<<<< HEAD
 import { fetchNasaPowerObservations } from "@/lib/nasa-power.ts";
+import { getNasaPowerSummary } from "@/lib/farm-api.ts";
+import { useFarm } from "@/components/providers/farm-context.tsx";
 
 export function useNasaPowerObservations(
   latitude: number,
@@ -12,9 +13,10 @@ export function useNasaPowerObservations(
     queryFn: ({ signal }) =>
       fetchNasaPowerObservations({ latitude, longitude }, signal),
     enabled,
-=======
-import { getNasaPowerSummary } from "@/lib/farm-api.ts";
-import { useFarm } from "@/components/providers/farm-context.tsx";
+    staleTime: 6 * 60 * 60 * 1000,
+    retry: 1,
+  });
+}
 
 export function useNasaPower() {
   const { location } = useFarm();
@@ -28,7 +30,6 @@ export function useNasaPower() {
         },
       }),
     enabled: location !== null,
->>>>>>> main
     staleTime: 6 * 60 * 60 * 1000,
     retry: 1,
   });

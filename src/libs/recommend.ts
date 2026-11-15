@@ -4,6 +4,9 @@ export type ClimateNow = {
   avgTemp: number;
   rainOutlook7d: number;
   soilMoisture: number | null;
+  season?: "Wet season" | "Dry season";
+  rainOutlook30d?: number;
+  humidity?: number;
 };
 
 export type Drainage = "Poor" | "Moderate" | "Good";
