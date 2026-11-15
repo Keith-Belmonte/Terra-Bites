@@ -239,7 +239,7 @@ export function adaptModisObservation(
 export function adaptRegionalSample(
   location: FarmLocation,
 ): NormalizedObservation[] {
-  return [
+  const observations = [
     makeObservation(
       "airTemperature",
       location.climate.avgTemp,
@@ -248,31 +248,47 @@ export function adaptRegionalSample(
       "sample",
       null,
     ),
-    makeObservation(
-      "rainfallOutlook30d",
-      location.climate.rainOutlook30d,
-      "mm",
-      "regional-sample",
-      "sample",
-      null,
-    ),
-    makeObservation(
-      "relativeHumidity",
-      location.climate.humidity,
-      "%",
-      "regional-sample",
-      "sample",
-      null,
-    ),
-    makeObservation(
-      "soilMoisture",
-      location.climate.soilMoisture,
-      "%",
-      "regional-sample",
-      "sample",
-      null,
-    ),
   ];
+  const rainfall = location.climate.rainOutlook30d;
+  if (rainfall !== undefined) {
+    observations.push(
+      makeObservation(
+        "rainfallOutlook30d",
+        rainfall,
+        "mm",
+        "regional-sample",
+        "sample",
+        null,
+      ),
+    );
+  }
+  const humidity = location.climate.humidity;
+  if (humidity !== undefined) {
+    observations.push(
+      makeObservation(
+        "relativeHumidity",
+        humidity,
+        "%",
+        "regional-sample",
+        "sample",
+        null,
+      ),
+    );
+  }
+  const soilMoisture = location.climate.soilMoisture;
+  if (soilMoisture !== null) {
+    observations.push(
+      makeObservation(
+        "soilMoisture",
+        soilMoisture,
+        "%",
+        "regional-sample",
+        "sample",
+        null,
+      ),
+    );
+  }
+  return observations;
 }
 
 function observationFor(

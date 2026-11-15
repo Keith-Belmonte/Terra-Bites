@@ -18,13 +18,10 @@ import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppLocationRouteImport } from './routes/_app/location'
 import { Route as AppMapsRouteImport } from './routes/_app/maps'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AppCropsIndexRouteImport } from './routes/_app/crops/index'
 import { Route as AppCropsCropIdRouteImport } from './routes/_app/crops/$cropId'
-import { Route as AuthSignInSsoCallbackRouteImport } from './routes/auth/sign-in/sso-callback'
-import { Route as AuthSignUpSsoCallbackRouteImport } from './routes/auth/sign-up/sso-callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,11 +67,6 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
   path: '/auth/sign-in',
@@ -95,16 +87,6 @@ const AppCropsCropIdRoute = AppCropsCropIdRouteImport.update({
   path: '/crops/$cropId',
   getParentRoute: () => AppRoute,
 } as any)
-const AuthSignInSsoCallbackRoute = AuthSignInSsoCallbackRouteImport.update({
-  id: '/sso-callback',
-  path: '/sso-callback',
-  getParentRoute: () => AuthSignInRoute,
-} as any)
-const AuthSignUpSsoCallbackRoute = AuthSignUpSsoCallbackRouteImport.update({
-  id: '/sso-callback',
-  path: '/sso-callback',
-  getParentRoute: () => AuthSignUpRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,12 +97,9 @@ export interface FileRoutesByFullPath {
   '/location': typeof AppLocationRoute
   '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/sign-in': typeof AuthSignInRouteWithChildren
-  '/auth/sign-up': typeof AuthSignUpRouteWithChildren
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/crops/$cropId': typeof AppCropsCropIdRoute
-  '/auth/sign-in/sso-callback': typeof AuthSignInSsoCallbackRoute
-  '/auth/sign-up/sso-callback': typeof AuthSignUpSsoCallbackRoute
   '/crops/': typeof AppCropsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,12 +111,9 @@ export interface FileRoutesByTo {
   '/location': typeof AppLocationRoute
   '/maps': typeof AppMapsRoute
   '/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/sign-in': typeof AuthSignInRouteWithChildren
-  '/auth/sign-up': typeof AuthSignUpRouteWithChildren
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/crops/$cropId': typeof AppCropsCropIdRoute
-  '/auth/sign-in/sso-callback': typeof AuthSignInSsoCallbackRoute
-  '/auth/sign-up/sso-callback': typeof AuthSignUpSsoCallbackRoute
   '/crops': typeof AppCropsIndexRoute
 }
 export interface FileRoutesById {
@@ -151,12 +127,9 @@ export interface FileRoutesById {
   '/_app/location': typeof AppLocationRoute
   '/_app/maps': typeof AppMapsRoute
   '/_app/profile': typeof AppProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/sign-in': typeof AuthSignInRouteWithChildren
-  '/auth/sign-up': typeof AuthSignUpRouteWithChildren
+  '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/_app/crops/$cropId': typeof AppCropsCropIdRoute
-  '/auth/sign-in/sso-callback': typeof AuthSignInSsoCallbackRoute
-  '/auth/sign-up/sso-callback': typeof AuthSignUpSsoCallbackRoute
   '/_app/crops/': typeof AppCropsIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,12 +143,9 @@ export interface FileRouteTypes {
     | '/location'
     | '/maps'
     | '/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/crops/$cropId'
-    | '/auth/sign-in/sso-callback'
-    | '/auth/sign-up/sso-callback'
     | '/crops/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,12 +157,9 @@ export interface FileRouteTypes {
     | '/location'
     | '/maps'
     | '/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/crops/$cropId'
-    | '/auth/sign-in/sso-callback'
-    | '/auth/sign-up/sso-callback'
     | '/crops'
   id:
     | '__root__'
@@ -205,21 +172,17 @@ export interface FileRouteTypes {
     | '/_app/location'
     | '/_app/maps'
     | '/_app/profile'
-    | '/auth/callback'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/_app/crops/$cropId'
-    | '/auth/sign-in/sso-callback'
-    | '/auth/sign-up/sso-callback'
     | '/_app/crops/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  AuthSignInRoute: typeof AuthSignInRouteWithChildren
-  AuthSignUpRoute: typeof AuthSignUpRouteWithChildren
+  AuthSignInRoute: typeof AuthSignInRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -287,13 +250,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/sign-in': {
       id: '/auth/sign-in'
       path: '/auth/sign-in'
@@ -321,20 +277,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/crops/$cropId'
       preLoaderRoute: typeof AppCropsCropIdRouteImport
       parentRoute: typeof AppRoute
-    }
-    '/auth/sign-in/sso-callback': {
-      id: '/auth/sign-in/sso-callback'
-      path: '/sso-callback'
-      fullPath: '/auth/sign-in/sso-callback'
-      preLoaderRoute: typeof AuthSignInSsoCallbackRouteImport
-      parentRoute: typeof AuthSignInRoute
-    }
-    '/auth/sign-up/sso-callback': {
-      id: '/auth/sign-up/sso-callback'
-      path: '/sso-callback'
-      fullPath: '/auth/sign-up/sso-callback'
-      preLoaderRoute: typeof AuthSignUpSsoCallbackRouteImport
-      parentRoute: typeof AuthSignUpRoute
     }
   }
 }
@@ -365,36 +307,11 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
-interface AuthSignInRouteChildren {
-  AuthSignInSsoCallbackRoute: typeof AuthSignInSsoCallbackRoute
-}
-
-const AuthSignInRouteChildren: AuthSignInRouteChildren = {
-  AuthSignInSsoCallbackRoute: AuthSignInSsoCallbackRoute,
-}
-
-const AuthSignInRouteWithChildren = AuthSignInRoute._addFileChildren(
-  AuthSignInRouteChildren,
-)
-
-interface AuthSignUpRouteChildren {
-  AuthSignUpSsoCallbackRoute: typeof AuthSignUpSsoCallbackRoute
-}
-
-const AuthSignUpRouteChildren: AuthSignUpRouteChildren = {
-  AuthSignUpSsoCallbackRoute: AuthSignUpSsoCallbackRoute,
-}
-
-const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(
-  AuthSignUpRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
-  AuthCallbackRoute: AuthCallbackRoute,
-  AuthSignInRoute: AuthSignInRouteWithChildren,
-  AuthSignUpRoute: AuthSignUpRouteWithChildren,
+  AuthSignInRoute: AuthSignInRoute,
+  AuthSignUpRoute: AuthSignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

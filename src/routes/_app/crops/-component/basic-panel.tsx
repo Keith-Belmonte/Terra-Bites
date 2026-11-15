@@ -29,15 +29,7 @@ export default function BasisPanel() {
       icon: LayersIcon,
       title: "Local soil",
       value: `${soil.type} · pH ${soil.ph.toFixed(1)}`,
-<<<<<<< HEAD
-      note: `${soil.drainage} drainage · ${soil.fertility.toLowerCase()} fertility · ${
-        soilSource === "entered"
-          ? "entered texture; other values may be regional"
-          : "regional survey"
-      }`,
-=======
       note: `${soil.drainage} drainage · ${soil.fertility.toLowerCase()} fertility · ${soilSource === "test" ? "your soil test" : "general estimate; add a soil test"}`,
->>>>>>> main
     },
     {
       icon: CloudSunIcon,

@@ -1,8 +1,8 @@
-<<<<<<< HEAD
 import {
   adaptPowerDailyResponse,
   type NormalizedObservation,
 } from "@/lib/agronomy-data.ts";
+import { z } from "zod";
 
 type NasaPowerCoordinates = {
   latitude: number;
@@ -241,10 +241,9 @@ export async function fetchNasaPowerObservations(
     : endDate.toISOString();
 
   return adaptPowerDailyResponse(payload, observedAt);
-=======
-import { z } from "zod";
+}
 
-const nasaPowerSchema = z.object({
+const nasaPowerSummarySchema = z.object({
   properties: z.object({
     parameter: z.object({
       ALLSKY_SFC_SW_DWN: z.record(z.string(), z.number()),
@@ -268,7 +267,7 @@ function toIsoDate(date: string): string {
 }
 
 export function summarizeNasaPowerResponse(input: unknown): NasaPowerSummary {
-  const result = nasaPowerSchema.safeParse(input);
+  const result = nasaPowerSummarySchema.safeParse(input);
   if (!result.success) {
     throw new Error("NASA POWER returned data in an unexpected format.");
   }
@@ -315,5 +314,4 @@ export function summarizeNasaPowerResponse(input: unknown): NasaPowerSummary {
     endDate: toIsoDate(readings.at(-1)!.date),
     days: readings.length,
   };
->>>>>>> main
 }

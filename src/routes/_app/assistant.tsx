@@ -21,6 +21,7 @@ import { SUGGESTED_PROMPTS } from "@/lib/assistant-prompts.ts";
 import { askFarmAssistant } from "@/lib/farm-api.ts";
 import { useFarmWeather } from "@/hooks/use-farm-weather.ts";
 import { useNasaPower } from "@/hooks/use-nasa-power.ts";
+import { getLocation } from "@/lib/format.ts";
 import { cn } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_app/assistant")({
@@ -35,9 +36,11 @@ function newId() {
 }
 
 function Assistant() {
-<<<<<<< HEAD
-  const { messages, setMessages, locationId, deviceLocation } = useFarm();
+  const { messages, setMessages, locationId, deviceLocation, location } =
+    useFarm();
   const { user } = useUser();
+  const weather = useFarmWeather();
+  const nasaPower = useNasaPower();
   const loc = getLocation(locationId);
   const locationName = deviceLocation?.city
     ? [deviceLocation.city, deviceLocation.region ?? deviceLocation.country]
@@ -46,11 +49,6 @@ function Assistant() {
     : deviceLocation
       ? `${deviceLocation.latitude.toFixed(4)}, ${deviceLocation.longitude.toFixed(4)}`
       : loc.city;
-=======
-  const { messages, setMessages, location, profile } = useFarm();
-  const weather = useFarmWeather();
-  const nasaPower = useNasaPower();
->>>>>>> main
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -117,11 +115,7 @@ function Assistant() {
     }
   };
 
-<<<<<<< HEAD
   const firstName = user?.firstName || user?.fullName?.split(" ")[0] || "there";
-=======
-  const firstName = profile.name.trim().split(" ")[0] || "there";
->>>>>>> main
 
   return (
     <div className="fixed inset-x-0 top-0 bottom-16 flex flex-col bg-background md:static md:-mb-10 md:h-screen">
@@ -135,13 +129,7 @@ function Assistant() {
             <h1 className="font-serif text-xl font-semibold">Siesta</h1>
             <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
               <MapPinIcon className="size-3" />
-<<<<<<< HEAD
               Using data for {locationName}
-=======
-              {location
-                ? `Using live weather for ${location.city}`
-                : "No farm location set"}
->>>>>>> main
             </p>
           </div>
           {messages.length > 0 && (
